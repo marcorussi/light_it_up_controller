@@ -1,0 +1,76 @@
+Autore: Marco Russi
+Data: 12/10/2016
+
+
+LIGHT IT UP CONTROLLER
+
+
+1 - BLE
+1.1 - Advertising
+1.1.1 - Advertising packet structure
+
+The device advertises a well defines packet as defined here below:
+
+FIRST_LENGTH_POS: first length
+ADV_TYPE_FLAGS_POS: adv flags type
+BR_EDR_NOT_SUPPORTED_POS: BR/EDR not supported
+SECOND_LENGTH_POS: second length
+MANUF_DATA_TYPE_POS: manufacturer data type
+MANUF_ID_BYTE_0_POS: manufacturer ID lower byte
+MANUF_ID_BYTE_1_POS: manufacturer ID higher byte
+MANUF_DATA_LENGTH_POS: data length
+SERVICE_ID_BYTE_0_POS: service ID lower byte
+SERVICE_ID_BYTE_1_POS: service ID higher byte
+DATA_BYTE_0_POS: data byte 0
+DATA_BYTE_1_POS: data byte 1
+DATA_BYTE_2_POS: data byte 2 
+DATA_BYTE_3_POS: data byte 3 
+DATA_BYTE_4_POS: data byte 4 
+DATA_BYTE_5_POS: data byte 5 
+DATA_BYTE_6_POS: data byte 6 
+DATA_BYTE_7_POS: data byte 7 
+CALIB_RSSI_POS: calibrated RSSI 
+
+with the defined values:
+
+0x02: first length 
+ADV_FLAGS_TYPE: adv flags type 
+BR_EDR_NOT_SUPPORTED: BR/EDR not supported 
+(uint8_t)(MANUF_DATA_LENGTH + 4): second length 
+MANUF_DATA_TYPE: manufacturer data type 
+(uint8_t)MANUFACTURER_ID: manufacturer ID lower byte 
+(uint8_t)(MANUFACTURER_ID >> 8): manufacturer ID higher byte 
+MANUF_DATA_LENGTH: manufacturer data length 
+(uint8_t)MANUF_SERVICE_ID: service ID lower byte 
+(uint8_t)(MANUF_SERVICE_ID >> 8): service ID higher byte 
+INITIAL_STATE: Data 0 
+0x00: Data 1 
+0x00: Data 2 
+0x15: Data 3 
+0x00: Data 4 
+0x00: Data 5 
+0x00: Data 6 
+0x00: Data 7 
+TX_POWER_MEASURED_RSSI: RSSI TX power
+
+The MANUFACTURER_ID is attributed at each company from Bluetooth SIG and in this case it is flash memory defined.
+The SERVICE_ID is also flash memory defined and it is a custom field indicating a specific service implemented by the device. 
+This field is used by other compatible products to understand the behaviour of the device.
+The following 8 bytes are specific to the service ID and represent the shared data between devices that support that service.
+The CALIB_RSSI field is a calibrated value of RSSI in two's complement. It is not used by a scanner device at the moment (TO BE DEFINED). 
+
+1.1.2 - Advertised service data
+Advertised data from a remote controller are 8 byte long.
+The defined service ID is the only supported and related data bytes are managed as below:
+
+DATA_BYTE_0_POS: controller state
+DATA_BYTE_1_POS: not used 
+DATA_BYTE_2_POS: not used 
+DATA_BYTE_3_POS: not used 
+DATA_BYTE_4_POS: not used 
+DATA_BYTE_5_POS: not used 
+DATA_BYTE_6_POS: not used 
+DATA_BYTE_7_POS: not used 
+
+The new light values are updated when the controller confirms to be stable in a postion prior movement detection (TO BE IMPLEMENTED SINCE IT UPDATES THE CURRENT POSITION PERIODICALLY AT THE MOMENT).
+
