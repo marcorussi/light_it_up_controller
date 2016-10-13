@@ -436,9 +436,6 @@ void ble_man_init(void)
 {
 	/* stack BLE stack */
     ble_stack_init();
-
-	nrf_gpio_pin_write(24, 1);
-
 	gap_params_init();
 
 #ifdef FACE_INDEX_TEST

@@ -55,8 +55,10 @@
 /* ------------------- Local defines ------------------- */
 
 #ifdef ENABLE_ACCELEROMETER
-/* Number of motion axis */
-#define MPU6050_NUM_OF_MOTION_AXIS			3
+/* Number of acceleration axis */
+#define MPU6050_NUM_OF_ACC_AXIS				3
+/* Number of gyroscope axis */
+#define MPU6050_NUM_OF_GYRO_AXIS			3
 
 /* Burst read APP timer defines */
 #define BURST_READ_TIMER_TICK_PERIOD_MS		CFG_MPU6050_BURST_READ_UPDATE_MS
@@ -66,19 +68,31 @@
 #define BLE_UPDATE_TIMER_TICK_PERIOD_MS		CFG_BLE_ADV_UPDATE_MS
 #define BLE_UPDATE_TIMER_TICK_COUNT			((uint32_t)(((uint64_t)BLE_UPDATE_TIMER_TICK_PERIOD_MS * 1000000)/30517))
 
-/* LSB sensitivity */
-#define LSB_SENS_RANGE_2G					16384
-#define LSB_SENS_RANGE_4G					8192
-#define LSB_SENS_RANGE_8G					4096
-#define LSB_SENS_RANGE_16G					2048
+/* 1G threshold value according to accelerometer LSB sensitivity */
+#define ACC_SENS_RANGE_2G					16384
+#define ACC_SENS_RANGE_4G					8192
+#define ACC_SENS_RANGE_8G					4096
+#define ACC_SENS_RANGE_16G					2048
 
-/* 1G threshold */
-#define ACC_LSB_THRESHOLD_1G				(LSB_SENS_RANGE_4G)
-/* -1G threshold */
-#define ACC_LSB_THRESHOLD_N1G				(-LSB_SENS_RANGE_4G)
+/* 90°/s threshold value according to gyroscope LSB sensitivity */
+#define GYRO_SENS_RANGE_250DPS				11796
+#define GYRO_SENS_RANGE_500DPS				5898
+#define GYRO_SENS_RANGE_1000DPS				2949
+#define GYRO_SENS_RANGE_2000DPS				1474
 
-/* LSB tolerance */
+/* 1G/-1G thresholds. Range set to 4G at MPU6500 init */
+#define ACC_LSB_THRESHOLD_1G				(ACC_SENS_RANGE_4G)		
+#define ACC_LSB_THRESHOLD_N1G				(-ACC_SENS_RANGE_4G)
+
+/* 90°/-90° thresholds. Range set to 250°/s at MPU6500 init */
+#define GYRO_LSB_THRESHOLD_90DPS			(GYRO_SENS_RANGE_250DPS)		
+#define GYRO_LSB_THRESHOLD_N90DPS			(-GYRO_SENS_RANGE_250DPS)
+
+/* Accelerometer LSB tolerance (should depend on the selected threshold value) */
 #define ACC_LSB_THRESHOLD_TOL				2000
+
+/* Gyroscope LSB tolerance (should depend on the selected threshold value) */
+#define GYRO_LSB_THRESHOLD_TOL				1500
 
 /* G thresholds */
 #ifndef LIMIT_XYZ_VALUES_TO_2G
@@ -101,6 +115,12 @@
 #define ACC_LSB_THRESHOLD_N4G_HIGH			((ACC_LSB_THRESHOLD_N1G*4) + ACC_LSB_THRESHOLD_TOL)
 #define ACC_LSB_THRESHOLD_N4G_LOW			((ACC_LSB_THRESHOLD_N1G*4) - ACC_LSB_THRESHOLD_TOL)
 #endif
+
+/* DPS thresholds */
+#define GYRO_LSB_THRESHOLD_90DPS_HIGH		(GYRO_LSB_THRESHOLD_90DPS + GYRO_LSB_THRESHOLD_TOL)
+#define GYRO_LSB_THRESHOLD_90DPS_LOW		(GYRO_LSB_THRESHOLD_90DPS - GYRO_LSB_THRESHOLD_TOL)
+#define GYRO_LSB_THRESHOLD_N90DPS_HIGH		(GYRO_LSB_THRESHOLD_N90DPS + GYRO_LSB_THRESHOLD_TOL)
+#define GYRO_LSB_THRESHOLD_N90DPS_LOW		(GYRO_LSB_THRESHOLD_N90DPS - GYRO_LSB_THRESHOLD_TOL)
 
 /* Codified ZYX values for face index */
 /* ATTENTION: only on axis is considered for each face position */
@@ -136,7 +156,8 @@
 /* Structure containing x,y,z and temperature values */
 typedef struct
 {
-	int16_t acc_xyz[MPU6050_NUM_OF_MOTION_AXIS];
+	int16_t acc_xyz[MPU6050_NUM_OF_ACC_AXIS];
+	int16_t gyro_xyz[MPU6050_NUM_OF_GYRO_AXIS];
 	int16_t temp;
 } motion_temp_st;
 
@@ -197,7 +218,7 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 	uint8_t i;
 
 	/* convert x,y,z in G */
-	for(i=0; i<MPU6050_NUM_OF_MOTION_AXIS; i++)
+	for(i=0; i<MPU6050_NUM_OF_ACC_AXIS; i++)
 	{
 		/* calculate value in G */
 #ifndef LIMIT_XYZ_VALUES_TO_2G
@@ -279,7 +300,7 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 		{
 			motion_temp_values.acc_xyz[i] = -4;
 		}
-		/* else if higher than ACC_LSB_THRESHOLD_N4G_LOW */
+		/* else if lower than ACC_LSB_THRESHOLD_N4G_LOW */
 		else if(p_data[i] < ACC_LSB_THRESHOLD_N4G_LOW)
 		{
 			/* saturate at -4G */
@@ -288,7 +309,7 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 #endif
 		else
 		{
-			/* keep current value */
+			/* keep current value. NEVER HERE! */
 		}
 	}
 #ifdef LED_DEBUG
@@ -296,15 +317,65 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 #endif
 	/* store temperature */
 	motion_temp_values.temp = p_data[3];
-
+#if 1
+	/* convert gyro x,y,z in 90°/s units */
+	for(i=4; i<(4+MPU6050_NUM_OF_GYRO_AXIS); i++)
+	{
+		/* if higher than GYRO_LSB_THRESHOLD_90DPS_HIGH */
+		if(p_data[i] > GYRO_LSB_THRESHOLD_90DPS_HIGH)
+		{
+			/* saturate at 90DPS */
+			motion_temp_values.gyro_xyz[i-4] = 1;
+		}
+		/* around 90DPS */
+		if((p_data[i] < GYRO_LSB_THRESHOLD_90DPS_HIGH)
+		&& (p_data[i] > GYRO_LSB_THRESHOLD_90DPS_LOW))
+		{
+			motion_temp_values.gyro_xyz[i-4] = 1;
+		}
+		/* around 90DPS */
+		else 
+		if((p_data[i] < GYRO_LSB_THRESHOLD_90DPS_LOW)
+		&& (p_data[i] > GYRO_LSB_THRESHOLD_N90DPS_HIGH))
+		{
+			//motion_temp_values.gyro_xyz[i-4] = 0;
+			//keep last valid value
+		}
+		/* around -1G */
+		else 
+		if((p_data[i] < GYRO_LSB_THRESHOLD_N90DPS_HIGH)
+		&& (p_data[i] > GYRO_LSB_THRESHOLD_N90DPS_LOW))
+		{
+			motion_temp_values.gyro_xyz[i-4] = -1;
+		}
+		/* else if lower than GYRO_LSB_THRESHOLD_N90DPS_LOW */
+		else if(p_data[i] < GYRO_LSB_THRESHOLD_N90DPS_LOW)
+		{
+			/* saturate at N90DPS */
+			motion_temp_values.gyro_xyz[i-4] = -1;
+		}
+		else
+		{
+			/* keep current value. NEVER HERE! */
+		}
+	}
+#endif
 #ifdef UART_DEBUG
 	uint8_t uart_string[20];
-	sprintf((char *)uart_string, "_X: %d - %d", p_data[0], motion_temp_values.acc_xyz[0]);
+	sprintf((char *)uart_string, "ACC_X: %d - %d", p_data[0], motion_temp_values.acc_xyz[0]);
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
-	sprintf((char *)uart_string, "_Y: %d - %d", p_data[1], motion_temp_values.acc_xyz[1]);
+	sprintf((char *)uart_string, "ACC_Y: %d - %d", p_data[1], motion_temp_values.acc_xyz[1]);
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
-	sprintf((char *)uart_string, "_Z: %d - %d", p_data[2], motion_temp_values.acc_xyz[2]);
+	sprintf((char *)uart_string, "ACC_Z: %d - %d", p_data[2], motion_temp_values.acc_xyz[2]);
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+#if 1
+	sprintf((char *)uart_string, "GYRO_X: %d - %d", p_data[4], motion_temp_values.gyro_xyz[0]);
+	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+	sprintf((char *)uart_string, "GYRO_Y: %d - %d", p_data[5], motion_temp_values.gyro_xyz[1]);
+	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+	sprintf((char *)uart_string, "GYRO_Z: %d - %d", p_data[6], motion_temp_values.gyro_xyz[2]);
+	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+#endif
 #endif
 }
 
@@ -434,8 +505,8 @@ static void timer_config(void)
     APP_ERROR_CHECK(err_code);
 
 	/* start BLE adv update trigger timer */
-	err_code = app_timer_start(ble_update_trigger, BLE_UPDATE_TIMER_TICK_COUNT, NULL);
-    APP_ERROR_CHECK(err_code);
+	//err_code = app_timer_start(ble_update_trigger, BLE_UPDATE_TIMER_TICK_COUNT, NULL);
+    //APP_ERROR_CHECK(err_code);
 }
 #endif
 

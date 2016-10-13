@@ -52,7 +52,7 @@
 /* TODO: convert temperature value */
 
 
-
+//#undef UART_DEBUG
 
 /* ---------------- Local defines ------------------- */
 
@@ -61,7 +61,7 @@
 #define TWI_SDA_PIN_NUMBER					13
 
 /* Max number of pending TWI transactions */
-#define MAX_PENDING_TRANSACTIONS    		5
+#define MAX_PENDING_TRANSACTIONS    		8
 
 /* Burst read defines */
 #define MPU6050_ACC_XYZ_VALUES				3
@@ -82,21 +82,23 @@
 
 /* Transfers count */
 #define MPU6050_WHO_AM_I_TRANSFER_COUNT 	2
-#define MPU6050_INIT_TRANSFER_COUNT 		5
+#define MPU6050_INIT_TRANSFER_COUNT 		6
 
 /* Registers addresses */
 #define CONFIG_REG_ADDR						0x1A
+#define GYRO_CONFIG_REG_ADDR				0x1B
 #define ACCEL_CONFIG_REG_ADDR				0x1C
 #define SIGNAL_PATH_RESET_REG_ADDR			0x68
 #define POWER_MAN1_REG_ADDR					0x6B
 #define POWER_MAN2_REG_ADDR					0x6C
 
 /* Registers init values */
-#define CONFIG_REG_INIT_VALUE				0x05
+#define CONFIG_REG_INIT_VALUE				0x02
+#define GYRO_CONFIG_REG_INIT_VALUE			0x00
 #define ACCEL_CONFIG_REG_INIT_VALUE			0x08
 #define SIGNAL_PATH_RESET_REG_INIT_VALUE	0x07
-#define POWER_MAN1_REG_INIT_VALUE			0x20
-#define POWER_MAN2_REG_INIT_VALUE			0xC0
+#define POWER_MAN1_REG_INIT_VALUE			0x00
+#define POWER_MAN2_REG_INIT_VALUE			0x00
 
 /* Expected WHO_AM_I register value */
 #define WHO_AM_I_REG_VALUE					0x68
@@ -144,6 +146,7 @@ static uint8_t m_buffer[BUFFER_SIZE];
 
 /* Data lists for initial transfers */
 static uint8_t const transf_config_data[] = { CONFIG_REG_ADDR, CONFIG_REG_INIT_VALUE };
+static uint8_t const transf_gyro_config_data[] = { GYRO_CONFIG_REG_ADDR, GYRO_CONFIG_REG_INIT_VALUE };
 static uint8_t const transf_acc_config_data[] = { ACCEL_CONFIG_REG_ADDR, ACCEL_CONFIG_REG_INIT_VALUE };
 static uint8_t const transf_signal_path_reset_data[] = { SIGNAL_PATH_RESET_REG_ADDR, SIGNAL_PATH_RESET_REG_INIT_VALUE };
 static uint8_t const transf_power_mng1_data[] = { POWER_MAN1_REG_ADDR, POWER_MAN1_REG_INIT_VALUE };
@@ -163,6 +166,7 @@ static app_twi_transfer_t const mpu6050_init_transfers[MPU6050_INIT_TRANSFER_COU
 	APP_TWI_WRITE(MPU6050_ADDR, transf_power_mng1_data,  		sizeof(transf_power_mng1_data), 		0),
 	APP_TWI_WRITE(MPU6050_ADDR, transf_power_mng2_data,  		sizeof(transf_power_mng2_data), 		0),
 	APP_TWI_WRITE(MPU6050_ADDR, transf_config_data, 			sizeof(transf_config_data), 			0),
+	APP_TWI_WRITE(MPU6050_ADDR, transf_gyro_config_data,  		sizeof(transf_gyro_config_data), 		0),
 	APP_TWI_WRITE(MPU6050_ADDR, transf_acc_config_data,  		sizeof(transf_acc_config_data), 		0)
 };
 
@@ -187,8 +191,9 @@ static void bust_read_cb(ret_code_t result, void * p_user_data)
 	
 #ifdef UART_DEBUG
 	uint8_t uart_string[10];
-
 	//nrf_gpio_pin_toggle(21);
+	sprintf((char *)uart_string, "__________");
+	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 
 	/* if success */
@@ -212,7 +217,7 @@ static void bust_read_cb(ret_code_t result, void * p_user_data)
 			}
 #ifdef UART_DEBUG
 			/* pepare UART string for debugging */
-			sprintf((char *)uart_string, "%x - %d", raw_values[i], final_values[i]);
+			sprintf((char *)uart_string, "%x : %d", raw_values[i], final_values[i]);
 			uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 		}
@@ -226,7 +231,7 @@ static void bust_read_cb(ret_code_t result, void * p_user_data)
 		final_values[3] = raw_values[3];
 #ifdef UART_DEBUG
 		/* pepare UART string for debugging */
-		sprintf((char *)uart_string, "%x - %d", raw_values[3], final_values[3]);
+		sprintf((char *)uart_string, "%x : %d", raw_values[3], final_values[3]);
 		uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 
@@ -249,21 +254,13 @@ static void bust_read_cb(ret_code_t result, void * p_user_data)
 			}
 #ifdef UART_DEBUG
 			/* pepare UART string for debugging */
-			sprintf((char *)uart_string, "%x - %d", raw_values[i], final_values[i]);
+			sprintf((char *)uart_string, "%x : %d", raw_values[i], final_values[i]);
 			uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 		}
 
-
-		/* send final values to application */
-		if(app_burst_read_handler != NULL)
-		{
-			app_burst_read_handler(final_values, MPU6050_BURST_NUM_OF_VALUES);
-		}
-		else
-		{
-			/* it should never arrive here */
-		}
+		/* call related application function */
+		app_burst_read_handler(final_values, MPU6050_BURST_NUM_OF_VALUES);
 	}
 	else
 	{
@@ -352,27 +349,38 @@ bool mpu6050_init( mpu6050_init_st *p_init )
 	/* if the obtained value is equal to the expected one */
 	if(m_buffer[0] == WHO_AM_I_REG_VALUE)
 	{
-		/* store burst reada handler function */
-		app_burst_read_handler = p_init->burst_read_handler;
+		/* if valid application function handler */
+		if(p_init->burst_read_handler != NULL)
+		{
+			/* store burst reada handler function */
+			app_burst_read_handler = p_init->burst_read_handler;
 
-		/* perform initial tranfers for configuring the MPU6050 */
-		APP_ERROR_CHECK(app_twi_perform(&m_app_twi, mpu6050_init_transfers, MPU6050_INIT_TRANSFER_COUNT, NULL));
+			/* perform initial tranfers for configuring the MPU6050 */
+			APP_ERROR_CHECK(app_twi_perform(&m_app_twi, mpu6050_init_transfers, MPU6050_INIT_TRANSFER_COUNT, NULL));
 
 #ifdef UART_DEBUG
-		sprintf((char *)uart_string, "OK - %x", m_buffer[0]);
-		uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+			sprintf((char *)uart_string, "OK - %x", m_buffer[0]);
+			uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 #ifdef LED_DEBUG
-		nrf_gpio_pin_write(21, 0);
+			nrf_gpio_pin_write(21, 0);
 #endif
+		}
+		else
+		{
+			/* error: do nothing */
+			success = false;
+#ifdef UART_DEBUG
+			uart_send_string((uint8_t *)"FAIL. INVALID APP FUNCTION HANDLER", 34);
+#endif
+		}
 	}
 	else
 	{
 		/* error: do nothing */
 		success = false;
-
 #ifdef UART_DEBUG
-		uart_send_string((uint8_t *)"FAIL", 4);
+		uart_send_string((uint8_t *)"FAIL TO INIT MPU6500", 20);
 #endif
 	}
 
