@@ -125,26 +125,36 @@
 /* Codified ZYX values for face index */
 /* ATTENTION: only on axis is considered for each face position */
 /* Codified axis positions */
-#define X_PG_POS							0x01
-#define Y_PG_POS							0x02
-#define Z_PG_POS							0x04
-#define X_NG_POS							0x08
-#define Y_NG_POS							0x10
-#define Z_NG_POS							0x20
+#define ACC_X_PG_POS						0x0001
+#define ACC_Y_PG_POS						0x0002
+#define ACC_Z_PG_POS						0x0004
+#define ACC_X_NG_POS						0x0008
+#define ACC_Y_NG_POS						0x0010
+#define ACC_Z_NG_POS						0x0020
+#define GYRO_X_DPS_POS						0x0040
+#define GYRO_Y_DPS_POS						0x0080
+#define GYRO_Z_DPS_POS						0x0100
+#define GYRO_X_NDPS_POS						0x0200
+#define GYRO_Y_NDPS_POS						0x0400
+#define GYRO_Z_NDPS_POS						0x0800
 /* Codified xyz for each face */
-#define XYZ_G_FACE_INDEX_1					0b00000001
-#define XYZ_G_FACE_INDEX_2					0b00000010
-#define XYZ_G_FACE_INDEX_3					0b00000100
-#define XYZ_G_FACE_INDEX_4					0b00001000
-#define XYZ_G_FACE_INDEX_5					0b00010000
-#define XYZ_G_FACE_INDEX_6					0b00100000
+#define MOTION_XYZ_FLAGS_1					0x0001
+#define MOTION_XYZ_FLAGS_2					0x0002
+#define MOTION_XYZ_FLAGS_3					0x0004
+#define MOTION_XYZ_FLAGS_4					0x0008
+#define MOTION_XYZ_FLAGS_5					0x0010
+#define MOTION_XYZ_FLAGS_6					0x0020
+#define MOTION_XYZ_FLAGS_7					0x0041
+#define MOTION_XYZ_FLAGS_8					0x0201
 /* Faces index */
-#define FACE_INDEX_1						0
-#define FACE_INDEX_2						1
-#define FACE_INDEX_3						2
-#define FACE_INDEX_4						3
-#define FACE_INDEX_5						4
-#define FACE_INDEX_6						5
+#define MOTION_STATE_1						0
+#define MOTION_STATE_2						1
+#define MOTION_STATE_3						2
+#define MOTION_STATE_4						3
+#define MOTION_STATE_5						4
+#define MOTION_STATE_6						5
+#define MOTION_STATE_7						6
+#define MOTION_STATE_8						7
 #endif
 
 
@@ -184,15 +194,25 @@ APP_TIMER_DEF(ble_update_trigger);
 /* ------------------- Local const variables ------------------- */
 
 /* Default characteristic values */
-const uint8_t adv_values[6] = 
+const uint8_t adv_values[8] = 
 {
 	0x20,					
 	0x21,		
 	0x22,		
 	0x23,		
 	0x24,	
-	0x25							
+	0x25,
+	0x26,
+	0x27							
 };
+
+
+
+
+/* ------------------- Local variables ------------------- */
+
+/* store last valid motion state index. Init to an invalid greater than 6 value */
+uint8_t last_motion_state_index = 0xFF;
 
 
 
@@ -216,6 +236,8 @@ static void timer_config				(void);
 void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 {
 	uint8_t i;
+	uint16_t motion_codified = 0;
+	uint8_t motion_state_index = 0;
 
 	/* convert x,y,z in G */
 	for(i=0; i<MPU6050_NUM_OF_ACC_AXIS; i++)
@@ -312,12 +334,10 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 			/* keep current value. NEVER HERE! */
 		}
 	}
-#ifdef LED_DEBUG
-	//nrf_gpio_pin_toggle(21);
-#endif
-	/* store temperature */
+
+	/* store temperature. TODO */
 	motion_temp_values.temp = p_data[3];
-#if 1
+
 	/* convert gyro x,y,z in 90°/s units */
 	for(i=4; i<(4+MPU6050_NUM_OF_GYRO_AXIS); i++)
 	{
@@ -359,24 +379,166 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 			/* keep current value. NEVER HERE! */
 		}
 	}
-#endif
+
 #ifdef UART_DEBUG
 	uint8_t uart_string[20];
-	sprintf((char *)uart_string, "ACC_X: %d - %d", p_data[0], motion_temp_values.acc_xyz[0]);
+	sprintf((char *)uart_string, "ACC_X: %d : %d", p_data[0], motion_temp_values.acc_xyz[0]);
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
-	sprintf((char *)uart_string, "ACC_Y: %d - %d", p_data[1], motion_temp_values.acc_xyz[1]);
+	sprintf((char *)uart_string, "ACC_Y: %d : %d", p_data[1], motion_temp_values.acc_xyz[1]);
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
-	sprintf((char *)uart_string, "ACC_Z: %d - %d", p_data[2], motion_temp_values.acc_xyz[2]);
+	sprintf((char *)uart_string, "ACC_Z: %d : %d", p_data[2], motion_temp_values.acc_xyz[2]);
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
-#if 1
-	sprintf((char *)uart_string, "GYRO_X: %d - %d", p_data[4], motion_temp_values.gyro_xyz[0]);
+	sprintf((char *)uart_string, "GYRO_X: %d : %d", p_data[4], motion_temp_values.gyro_xyz[0]);
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
-	sprintf((char *)uart_string, "GYRO_Y: %d - %d", p_data[5], motion_temp_values.gyro_xyz[1]);
+	sprintf((char *)uart_string, "GYRO_Y: %d : %d", p_data[5], motion_temp_values.gyro_xyz[1]);
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
-	sprintf((char *)uart_string, "GYRO_Z: %d - %d", p_data[6], motion_temp_values.gyro_xyz[2]);
+	sprintf((char *)uart_string, "GYRO_Z: %d : %d", p_data[6], motion_temp_values.gyro_xyz[2]);
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
+
+	/* calculate motion state index according to last acquired motion values */
+	/* ATTENTION: only one acc axis should be considered for each face: see defines above */
+	/* acc X */
+	if(motion_temp_values.acc_xyz[0] == 1)
+	{
+		motion_codified |= ACC_X_PG_POS;
+	}
+	else if(motion_temp_values.acc_xyz[0] == -1)
+	{
+		motion_codified |= ACC_X_NG_POS;
+	}
+	else
+	{
+		/* do nothing */
+	}
+	/* acc Y */
+	if(motion_temp_values.acc_xyz[1] == 1)
+	{
+		motion_codified |= ACC_Y_PG_POS;
+	}
+	else if(motion_temp_values.acc_xyz[1] == -1)
+	{
+		motion_codified |= ACC_Y_NG_POS;
+	}
+	else
+	{
+		/* do nothing */
+	}
+	/* acc Z */
+	if(motion_temp_values.acc_xyz[2] == 1)
+	{
+		motion_codified |= ACC_Z_PG_POS;
+	}
+	else if(motion_temp_values.acc_xyz[2] == -1)
+	{
+		motion_codified |= ACC_Z_NG_POS;
+	}
+	else
+	{
+		/* do nothing */
+	}
+	/* gyro X */
+	if(motion_temp_values.gyro_xyz[0] == 1)
+	{
+		motion_codified |= GYRO_X_DPS_POS;
+	}
+	else if(motion_temp_values.gyro_xyz[0] == -1)
+	{
+		motion_codified |= GYRO_X_NDPS_POS;
+	}
+	else
+	{
+		/* do nothing */
+	}
+	/* gyro Y */
+	if(motion_temp_values.gyro_xyz[1] == 1)
+	{
+		motion_codified |= GYRO_Y_DPS_POS;
+	}
+	else if(motion_temp_values.gyro_xyz[1] == -1)
+	{
+		motion_codified |= GYRO_Y_NDPS_POS;
+	}
+	else
+	{
+		/* do nothing */
+	}
+	/* gyro Z */
+	if(motion_temp_values.gyro_xyz[2] == 1)
+	{
+		motion_codified |= GYRO_Z_DPS_POS;
+	}
+	else if(motion_temp_values.gyro_xyz[2] == -1)
+	{
+		motion_codified |= GYRO_Z_NDPS_POS;
+	}
+	else
+	{
+		/* do nothing */
+	}
+
+	/* get motion state index to broadcast */
+	switch(motion_codified)
+	{
+		case MOTION_XYZ_FLAGS_1:
+			motion_state_index = MOTION_STATE_1;
+			break;
+		case MOTION_XYZ_FLAGS_2:
+			motion_state_index = MOTION_STATE_2;
+			break;
+		case MOTION_XYZ_FLAGS_3:
+			motion_state_index = MOTION_STATE_3;
+			break;
+		case MOTION_XYZ_FLAGS_4:
+			motion_state_index = MOTION_STATE_4;
+			break;
+		case MOTION_XYZ_FLAGS_5:
+			motion_state_index = MOTION_STATE_5;
+			break;
+		case MOTION_XYZ_FLAGS_6:
+			motion_state_index = MOTION_STATE_6;
+			break;
+		case MOTION_XYZ_FLAGS_7:
+			motion_state_index = MOTION_STATE_7;
+			break;
+		case MOTION_XYZ_FLAGS_8:
+			motion_state_index = MOTION_STATE_8;
+			break;
+		default:
+			/* invalid motion state index */
+			motion_state_index = 0xFF;
+			break;
+	}	
+
+	/* if motion state has changed */
+	if(motion_state_index != last_motion_state_index)
+	{
+		/* store motion state codified */
+		last_motion_state_index = motion_state_index;
+
+		/* if valid calculated motion state index */
+		if(motion_state_index <= MOTION_STATE_8)
+		{
+#ifdef UART_DEBUG
+			uint8_t uart_string[20];
+			sprintf((char *)uart_string, "_MOTION STATE: %x - %d", motion_codified, motion_state_index);
+			uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
+		}
+		else
+		{
+			/* invalid face index: do nothing */
+#ifdef UART_DEBUG
+			uint8_t uart_string[20];
+			sprintf((char *)uart_string, "_MOTION STATE: %x - invalid", motion_codified);
+			uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+#endif
+		}
+	}
+	else
+	{
+		/* do nothing */
+	}
 }
 
 
@@ -393,97 +555,13 @@ static void read_timeout_handler(void * p_context)
 /* Timer timeout handler for triggering a new conversion */
 static void update_timeout_handler(void * p_context)
 {
-	uint8_t motion_codified_g = 0;
-	uint8_t face_index = 0xFF;	/* Init to an invalid greater than 6 value */
-
 	UNUSED_PARAMETER(p_context);
 #ifdef LED_DEBUG
 	//nrf_gpio_pin_toggle(21);
 #endif
 
-	/* calculate face index according to last acquired motion values */
-	/* ATTENTION: only one axis should be considered for each face: see defines above */
-	/* X */
-	if(motion_temp_values.acc_xyz[0] == 1)
-	{
-		motion_codified_g |= X_PG_POS;
-	}
-	else if(motion_temp_values.acc_xyz[0] == -1)
-	{
-		motion_codified_g |= X_NG_POS;
-	}
-	else
-	{
-		/* do nothing */
-	}
-	/* Y */
-	if(motion_temp_values.acc_xyz[1] == 1)
-	{
-		motion_codified_g |= Y_PG_POS;
-	}
-	else if(motion_temp_values.acc_xyz[1] == -1)
-	{
-		motion_codified_g |= Y_NG_POS;
-	}
-	else
-	{
-		/* do nothing */
-	}
-	/* Z */
-	if(motion_temp_values.acc_xyz[2] == 1)
-	{
-		motion_codified_g |= Z_PG_POS;
-	}
-	else if(motion_temp_values.acc_xyz[2] == -1)
-	{
-		motion_codified_g |= Z_NG_POS;
-	}
-	else
-	{
-		/* do nothing */
-	}
-
-	/* get final face index to broadcast */
-	switch(motion_codified_g)
-	{
-		case XYZ_G_FACE_INDEX_1:
-			face_index = FACE_INDEX_1;
-			break;
-		case XYZ_G_FACE_INDEX_2:
-			face_index = FACE_INDEX_2;
-			break;
-		case XYZ_G_FACE_INDEX_3:
-			face_index = FACE_INDEX_3;
-			break;
-		case XYZ_G_FACE_INDEX_4:
-			face_index = FACE_INDEX_4;
-			break;
-		case XYZ_G_FACE_INDEX_5:
-			face_index = FACE_INDEX_5;
-			break;
-		case XYZ_G_FACE_INDEX_6:
-			face_index = FACE_INDEX_6;
-			break;
-		default:
-			/* invalid face index */
-			break;
-	}	
-	
-	/* if valid calculated face index */
-	if(face_index <= FACE_INDEX_6)
-	{
-#ifdef UART_DEBUG
-		uint8_t uart_string[20];
-		sprintf((char *)uart_string, "_FACE: %x - %d", motion_codified_g, face_index);
-		uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
-#endif
-		/* update BLE adv packet with new data values */
-		ble_man_adv_update((uint8_t *)&adv_values[face_index], 1);
-	}
-	else
-	{
-		/* invalid face index: do nothing */
-	}
+	/* update BLE adv packet with new data values */
+	//ble_man_adv_update((uint8_t *)&adv_values[last_motion_state_index], 1);
 }
 
 
@@ -505,8 +583,8 @@ static void timer_config(void)
     APP_ERROR_CHECK(err_code);
 
 	/* start BLE adv update trigger timer */
-	//err_code = app_timer_start(ble_update_trigger, BLE_UPDATE_TIMER_TICK_COUNT, NULL);
-    //APP_ERROR_CHECK(err_code);
+	err_code = app_timer_start(ble_update_trigger, BLE_UPDATE_TIMER_TICK_COUNT, NULL);
+    APP_ERROR_CHECK(err_code);
 }
 #endif
 

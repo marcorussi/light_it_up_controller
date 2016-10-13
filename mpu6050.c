@@ -52,8 +52,6 @@
 /* TODO: convert temperature value */
 
 
-//#undef UART_DEBUG
-
 /* ---------------- Local defines ------------------- */
 
 /* TWI pin numbers */
@@ -217,8 +215,8 @@ static void bust_read_cb(ret_code_t result, void * p_user_data)
 			}
 #ifdef UART_DEBUG
 			/* pepare UART string for debugging */
-			sprintf((char *)uart_string, "%x : %d", raw_values[i], final_values[i]);
-			uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+			//sprintf((char *)uart_string, "%x : %d", raw_values[i], final_values[i]);
+			//uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 		}
 
@@ -231,8 +229,8 @@ static void bust_read_cb(ret_code_t result, void * p_user_data)
 		final_values[3] = raw_values[3];
 #ifdef UART_DEBUG
 		/* pepare UART string for debugging */
-		sprintf((char *)uart_string, "%x : %d", raw_values[3], final_values[3]);
-		uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+		//sprintf((char *)uart_string, "%x : %d", raw_values[3], final_values[3]);
+		//uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 
 		/* get obtained gyro xyz raw values and calculate final values */
@@ -254,8 +252,8 @@ static void bust_read_cb(ret_code_t result, void * p_user_data)
 			}
 #ifdef UART_DEBUG
 			/* pepare UART string for debugging */
-			sprintf((char *)uart_string, "%x : %d", raw_values[i], final_values[i]);
-			uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+			//sprintf((char *)uart_string, "%x : %d", raw_values[i], final_values[i]);
+			//uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 		}
 
@@ -332,7 +330,6 @@ bool mpu6050_init( mpu6050_init_st *p_init )
 	bool success = true;
 #ifdef UART_DEBUG
 	uint8_t uart_string[8];
-
 	/* send initial UART string */
 	uart_send_string((uint8_t *)"MPU6050 INIT", 12);
 #endif
