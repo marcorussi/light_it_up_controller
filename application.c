@@ -194,16 +194,10 @@ APP_TIMER_DEF(ble_update_trigger);
 /* ------------------- Local const variables ------------------- */
 
 /* Default characteristic values */
-const uint8_t adv_values[8] = 
+const uint8_t adv_values[2] = 
 {
-	0x20,					
-	0x21,		
-	0x22,		
-	0x23,		
-	0x24,	
-	0x25,
-	0x26,
-	0x27							
+	0x00,					
+	0x01									
 };
 
 
@@ -568,23 +562,23 @@ static void update_timeout_handler(void * p_context)
 /* Function to init the read timer */
 static void timer_config(void)
 {
-    uint32_t err_code;
+	uint32_t err_code;
 
 	/* init burst read trigger timer */
 	err_code = app_timer_create(&read_trigger, APP_TIMER_MODE_REPEATED, read_timeout_handler);
-    APP_ERROR_CHECK(err_code);
+	APP_ERROR_CHECK(err_code);
 
 	/* init BLE adv update trigger timer */
 	err_code = app_timer_create(&ble_update_trigger, APP_TIMER_MODE_REPEATED, update_timeout_handler);
-    APP_ERROR_CHECK(err_code);
+	APP_ERROR_CHECK(err_code);
 
 	/* start burst read trigger timer */
 	err_code = app_timer_start(read_trigger, BURST_READ_TIMER_TICK_COUNT, NULL);
-    APP_ERROR_CHECK(err_code);
+	APP_ERROR_CHECK(err_code);
 
 	/* start BLE adv update trigger timer */
 	err_code = app_timer_start(ble_update_trigger, BLE_UPDATE_TIMER_TICK_COUNT, NULL);
-    APP_ERROR_CHECK(err_code);
+	APP_ERROR_CHECK(err_code);
 }
 #endif
 

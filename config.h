@@ -28,13 +28,13 @@
 //#define LED_DEBUG
 
 /* Uncomment the following define for enabling debug over UART */
-#define UART_DEBUG
+//#define UART_DEBUG
 
 /* Uncomment the following define for enabling the accelerometer and its management */
-#define ENABLE_ACCELEROMETER
+//#define ENABLE_ACCELEROMETER
 
 /* Uncomment the following define for enabling the test of face index update in the BLE adv packet */
-//#define FACE_INDEX_TEST
+#define FACE_INDEX_TEST
 
 /* Uncomment the following define for limiting acceleration detection to 2G
    (any values bigger than 2G will be limited to 2G ) */

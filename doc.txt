@@ -63,9 +63,9 @@ The CALIB_RSSI field is a calibrated value of RSSI in two's complement. It is no
 Advertised data from a remote controller are 8 byte long.
 The defined service ID is the only supported and related data bytes are managed as below:
 
-DATA_BYTE_0_POS: controller state
-DATA_BYTE_1_POS: not used 
-DATA_BYTE_2_POS: not used 
+DATA_BYTE_0_POS: reserved - leave at 0xFF at the moment
+DATA_BYTE_1_POS: any different value than before means that next byte position has a new value
+DATA_BYTE_2_POS: controller state
 DATA_BYTE_3_POS: not used 
 DATA_BYTE_4_POS: not used 
 DATA_BYTE_5_POS: not used 

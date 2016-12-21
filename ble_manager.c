@@ -55,13 +55,13 @@
 
 #ifdef FACE_INDEX_TEST
 /* Timer period in milli seconds */
-#define TRIGGER_TIMER_PERIOD_MS				6000		/* 6 s */
+#define TRIGGER_TIMER_PERIOD_MS				4000		/* 4 s */
 /* Timer counter value */
 #define TRIGGER_TIMER_COUNT					((uint32_t)(((uint64_t)TRIGGER_TIMER_PERIOD_MS * 1000000)/30517))
 #endif
 
 /* Low frequency clock source to be used by the SoftDevice */
-#define NRF_CLOCK_LFCLKSRC      			{.source        = NRF_CLOCK_LF_SRC_RC,				\
+#define NRF_CLOCK_LFCLKSRC      				{.source        = NRF_CLOCK_LF_SRC_RC,				\
                                  		 	 .rc_ctiv       = 15,                              	\
                                  		 	 .rc_temp_ctiv  = 15,								\
                                  		 	 .xtal_accuracy = 0}
@@ -86,19 +86,19 @@
 #define APP_TIMER_PRESCALER              	0    
 
 /* Number of data byte in advertising packet */
-#define NUM_OF_DATA_BYTES					8
+#define NUM_OF_DATA_BYTES						8
 
 /* Initial face index value */
-#define INITIAL_STATE						1
+#define INITIAL_STATE							1
 
 /* Max adv length */
-#define MAX_ADV_LENGTH						31
+#define MAX_ADV_LENGTH							31
 
-#define ADV_FLAGS_TYPE						BLE_GAP_AD_TYPE_FLAGS
-#define BR_EDR_NOT_SUPPORTED				BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED
-#define MANUF_DATA_TYPE						BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA
-#define MANUFACTURER_ID						TEMP_COMPANY_ID
-#define MANUF_DATA_LENGTH					11
+#define ADV_FLAGS_TYPE							BLE_GAP_AD_TYPE_FLAGS
+#define BR_EDR_NOT_SUPPORTED					BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED
+#define MANUF_DATA_TYPE							BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA
+#define MANUFACTURER_ID							TEMP_COMPANY_ID
+#define MANUF_DATA_LENGTH						11
 
 
 
@@ -221,13 +221,13 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 {
 	const ble_gap_evt_t * p_gap_evt = &p_ble_evt->evt.gap_evt;	
 
-    switch (p_ble_evt->header.evt_id)
+	switch (p_ble_evt->header.evt_id)
 	{
 		case BLE_GAP_EVT_TIMEOUT:
 		{
 			/* if advertising timeout */
-            if (p_gap_evt->params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING)
-            {
+         if (p_gap_evt->params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING)
+         {
 				/* ATTENTION: TODO */
 				//uint32_t err_code = sd_ble_gap_adv_start(&m_adv_params);
 				//APP_ERROR_CHECK(err_code);
@@ -237,23 +237,23 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 				/* do nothing */
 			}
 		}
-        case BLE_GAP_EVT_CONNECTED:
-        case BLE_GAP_EVT_DISCONNECTED:
+		case BLE_GAP_EVT_CONNECTED:
+		case BLE_GAP_EVT_DISCONNECTED:
 		case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-        case BLE_GATTS_EVT_SYS_ATTR_MISSING:
+		case BLE_GATTS_EVT_SYS_ATTR_MISSING:
 		case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST:
 		case BLE_GATTC_EVT_TIMEOUT:
-        case BLE_GATTS_EVT_TIMEOUT:
+		case BLE_GATTS_EVT_TIMEOUT:
 		{
-            /* Never here! */
-            break;
+      	/* Never here! */
+      	break;
 		}
-        default:
+		default:
 		{
-            /* No implementation needed. */
-            break;
+   		/* No implementation needed. */
+         	break;
 		}
-    }
+	}
 }
 
 
@@ -273,19 +273,19 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
    device including the device name, appearance. Preferred connection parameters are not initialised. */
 static void gap_params_init(void)
 {
-    uint32_t                err_code;
-    ble_gap_conn_sec_mode_t sec_mode;
+	uint32_t                err_code;
+	ble_gap_conn_sec_mode_t sec_mode;
 
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode);
+	BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode);
 
-    err_code = sd_ble_gap_device_name_set(&sec_mode,
-                                          (const uint8_t *)DEVICE_NAME,
-                                          strlen(DEVICE_NAME));
-    APP_ERROR_CHECK(err_code);
+	err_code = sd_ble_gap_device_name_set(&sec_mode,
+		                                   (const uint8_t *)DEVICE_NAME,
+		                                   strlen(DEVICE_NAME));
+	APP_ERROR_CHECK(err_code);
 
-    /* TODO: Use an appearance value matching the application's use case. */
-    err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_GENERIC_REMOTE_CONTROL);
-    APP_ERROR_CHECK(err_code);
+	/* TODO: Use an appearance value matching the application's use case. */
+	err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_GENERIC_REMOTE_CONTROL);
+	APP_ERROR_CHECK(err_code);
 }
 
 
@@ -301,23 +301,26 @@ static void advertising_init(void)
 	memcpy((void *)&adv_data[0], (const void *)adv_data_packet, ADV_DATA_PACKET_LENGTH);
 
 	/* set scan response data with shortened device name */
-    scan_resp_data[0] = 1 + strlen((const char*)device_name);
-    scan_resp_data[1] = BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME;
-    memcpy(&scan_resp_data[2], device_name, (scan_resp_data[0] - 1));
+	scan_resp_data[0] = 1 + strlen((const char*)device_name);
+	scan_resp_data[1] = BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME;
+	memcpy(&scan_resp_data[2], device_name, (scan_resp_data[0] - 1));
 
-    /* set advertising data */
-    err_code = sd_ble_gap_adv_data_set((uint8_t const *)adv_data, ADV_DATA_PACKET_LENGTH, (uint8_t const *)scan_resp_data, (scan_resp_data[0] + 1));
+	/* set advertising data */
+	err_code = sd_ble_gap_adv_data_set((uint8_t const *)adv_data, 
+												  ADV_DATA_PACKET_LENGTH, 
+												  (uint8_t const *)scan_resp_data, 
+												  (scan_resp_data[0] + 1));
 	APP_ERROR_CHECK(err_code);
 
-    /* Initialize advertising parameters (used when starting advertising) */
-    memset(&m_adv_params, 0, sizeof(m_adv_params));
+	/* Initialize advertising parameters (used when starting advertising) */
+	memset(&m_adv_params, 0, sizeof(m_adv_params));
 
-    m_adv_params.type        = BLE_GAP_ADV_TYPE_ADV_SCAN_IND;	/* Not connectable */ //BLE_GAP_ADV_TYPE_ADV_IND;
-    m_adv_params.p_peer_addr = NULL;	/* Undirected advertisement */
-    m_adv_params.fp          = BLE_GAP_ADV_FP_ANY;
-    m_adv_params.p_whitelist = NULL;
-    m_adv_params.interval    = APP_ADV_INTERVAL;
-    m_adv_params.timeout     = APP_ADV_TIMEOUT_IN_SECONDS;
+	m_adv_params.type        = BLE_GAP_ADV_TYPE_ADV_SCAN_IND;	/* Not connectable */ //BLE_GAP_ADV_TYPE_ADV_IND;
+	m_adv_params.p_peer_addr = NULL;	/* Undirected advertisement */
+	m_adv_params.fp          = BLE_GAP_ADV_FP_ANY;
+	m_adv_params.p_whitelist = NULL;
+	m_adv_params.interval    = APP_ADV_INTERVAL;
+	m_adv_params.timeout     = APP_ADV_TIMEOUT_IN_SECONDS;
 
 	/* advertising is started in a separated function */
 }
@@ -327,57 +330,59 @@ static void advertising_init(void)
    Initializes the SoftDevice and the BLE event interrupt */
 static void ble_stack_init(void)
 {
-    uint32_t err_code;
-    
-    nrf_clock_lf_cfg_t clock_lf_cfg = NRF_CLOCK_LFCLKSRC;
-    
-    /* Initialize the SoftDevice handler module. */
-    SOFTDEVICE_HANDLER_INIT(&clock_lf_cfg, NULL);
+	uint32_t err_code;
 
-    ble_enable_params_t ble_enable_params;
-    err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,
-                                                    PERIPHERAL_LINK_COUNT,
-                                                    &ble_enable_params);
-    APP_ERROR_CHECK(err_code);
-    
-    /* Check the ram settings against the used number of links */
-    CHECK_RAM_START_ADDR(CENTRAL_LINK_COUNT, PERIPHERAL_LINK_COUNT);
- 
-    /* Enable BLE stack. */
-    err_code = softdevice_enable(&ble_enable_params);
-    APP_ERROR_CHECK(err_code);
+	nrf_clock_lf_cfg_t clock_lf_cfg = NRF_CLOCK_LFCLKSRC;
+
+	/* Initialize the SoftDevice handler module. */
+	SOFTDEVICE_HANDLER_INIT(&clock_lf_cfg, NULL);
+
+	ble_enable_params_t ble_enable_params;
+	err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,
+		                                             PERIPHERAL_LINK_COUNT,
+		                                             &ble_enable_params);
+	APP_ERROR_CHECK(err_code);
+
+	/* Check the ram settings against the used number of links */
+	CHECK_RAM_START_ADDR(CENTRAL_LINK_COUNT, PERIPHERAL_LINK_COUNT);
+
+	/* Enable BLE stack. */
+	err_code = softdevice_enable(&ble_enable_params);
+	APP_ERROR_CHECK(err_code);
 
 	/* Register with the SoftDevice handler module for BLE events. */
-    err_code = softdevice_ble_evt_handler_set(ble_evt_dispatch);
-    APP_ERROR_CHECK(err_code);
+	err_code = softdevice_ble_evt_handler_set(ble_evt_dispatch);
+	APP_ERROR_CHECK(err_code);
 }
 
 
 #ifdef FACE_INDEX_TEST
 static uint8_t fake_face_index = 0;
-const uint8_t fake_adv_values[6] = 
+const uint8_t fake_adv_values[2] = 
 {
-	0x20,
-	0x21,
-	0x22,
-	0x23,
-	0x24,
-	0x25
+	0x00,
+	0x01
 };
 /* Timer timeout function */
 static void timer_handler(void * p_context)
 {
+	static uint8_t bytes_to_change[3];
+#ifdef LED_DEBUG
 	nrf_gpio_pin_toggle(24);
-
+#endif
 	/* increment fake face index */
 	fake_face_index++;
-	if(fake_face_index > 5)
+	if(fake_face_index > 1)
 	{
 		fake_face_index = 0;
 	}
 
+	bytes_to_change[0] = 0; /* ATTENTION: not used at the moment */
+	bytes_to_change[1] = fake_face_index;
+	bytes_to_change[2] = fake_adv_values[fake_face_index];
+
 	/* update BLE adv packet with new data values */
-	ble_man_adv_update((uint8_t *)&fake_adv_values[fake_face_index], 1);
+	ble_man_adv_update((uint8_t *)&bytes_to_change[0], 3);
 }
 #endif
 
@@ -403,7 +408,10 @@ void ble_man_adv_update(uint8_t *data_values, uint8_t length)
 		memcpy(&adv_data[DATA_BYTE_0_POS], &data_values[0], length);
 		
 		/* set new adv data packet */
-		err_code = sd_ble_gap_adv_data_set((uint8_t const *)adv_data, ADV_DATA_PACKET_LENGTH, (uint8_t const *)scan_resp_data, (scan_resp_data[0] + 1));
+		err_code = sd_ble_gap_adv_data_set((uint8_t const *)adv_data, 
+													  ADV_DATA_PACKET_LENGTH, 
+												     (uint8_t const *)scan_resp_data, 
+													  (scan_resp_data[0] + 1));
 		APP_ERROR_CHECK(err_code);
 
 		/* start advertising again */
@@ -420,14 +428,14 @@ void ble_man_adv_update(uint8_t *data_values, uint8_t length)
 /* Function for starting advertising */
 void ble_man_adv_start(void)
 {
-    uint32_t err_code;
+	uint32_t err_code;
 
 	/* init advertising */
-    advertising_init();
+	advertising_init();
 
 	/* start advertising */
-    err_code = sd_ble_gap_adv_start(&m_adv_params);
-    APP_ERROR_CHECK(err_code);
+	err_code = sd_ble_gap_adv_start(&m_adv_params);
+	APP_ERROR_CHECK(err_code);
 }
 
 
@@ -435,7 +443,7 @@ void ble_man_adv_start(void)
 void ble_man_init(void)
 {
 	/* stack BLE stack */
-    ble_stack_init();
+	ble_stack_init();
 	gap_params_init();
 
 #ifdef FACE_INDEX_TEST
@@ -443,7 +451,7 @@ void ble_man_init(void)
 
 	/* init button timer */
 	err_code = app_timer_create(&adv_timer, APP_TIMER_MODE_REPEATED, timer_handler);
-    APP_ERROR_CHECK(err_code);
+	APP_ERROR_CHECK(err_code);
 
 	/* start timer */
 	err_code = app_timer_start(adv_timer, TRIGGER_TIMER_COUNT, NULL);

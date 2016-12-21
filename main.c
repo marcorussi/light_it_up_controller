@@ -119,7 +119,7 @@ int main(void)
 
 		//nrf_delay_ms(200);
 
-        power_manage();
+		power_manage();
     }
 }
 
