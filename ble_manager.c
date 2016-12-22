@@ -61,8 +61,8 @@
 #endif
 
 /* Low frequency clock source to be used by the SoftDevice */
-#define NRF_CLOCK_LFCLKSRC      				{.source        = NRF_CLOCK_LF_SRC_RC,				\
-                                 		 	 .rc_ctiv       = 15,                              	\
+#define NRF_CLOCK_LFCLKSRC      				{.source        = NRF_CLOCK_LF_SRC_RC,			\
+                                 		 	 .rc_ctiv       = 15,                        \
                                  		 	 .rc_temp_ctiv  = 15,								\
                                  		 	 .xtal_accuracy = 0}
 
@@ -115,15 +115,15 @@ typedef char serial_num_string[12];
 typedef enum
 {
 	FIRST_LENGTH_POS,					/* first length */
-	ADV_TYPE_FLAGS_POS,					/* adv flags type */
-	BR_EDR_NOT_SUPPORTED_POS,			/* BR/EDR not supported */
-	SECOND_LENGTH_POS,					/* second length */
+	ADV_TYPE_FLAGS_POS,				/* adv flags type */
+	BR_EDR_NOT_SUPPORTED_POS,		/* BR/EDR not supported */
+	SECOND_LENGTH_POS,				/* second length */
 	MANUF_DATA_TYPE_POS,				/* manufacturer data type */
 	MANUF_ID_BYTE_0_POS,				/* manufacturer ID lower byte */
 	MANUF_ID_BYTE_1_POS,				/* manufacturer ID higher byte */
-	MANUF_DATA_LENGTH_POS,				/* data length */
-	SERVICE_ID_BYTE_0_POS,				/* service ID lower byte */
-	SERVICE_ID_BYTE_1_POS,				/* service ID higher byte */
+	MANUF_DATA_LENGTH_POS,			/* data length */
+	SERVICE_ID_BYTE_0_POS,			/* service ID lower byte */
+	SERVICE_ID_BYTE_1_POS,			/* service ID higher byte */
 	DATA_BYTE_0_POS,					/* data byte 0 */
 	DATA_BYTE_1_POS,					/* data byte 1 */
 	DATA_BYTE_2_POS,					/* data byte 2 */
@@ -132,8 +132,8 @@ typedef enum
 	DATA_BYTE_5_POS,					/* data byte 5 */
 	DATA_BYTE_6_POS,					/* data byte 6 */
 	DATA_BYTE_7_POS,					/* data byte 7 */
-	CALIB_RSSI_POS,						/* calibrated RSSI */
-	ADV_DATA_PACKET_LENGTH				/* Manufacturer data adv packet length. This is not included. It is for fw purpose only */
+	CALIB_RSSI_POS,					/* calibrated RSSI */
+	ADV_DATA_PACKET_LENGTH			/* Manufacturer data adv packet length. This is not included. It is for fw purpose only */
 } manuf_data_packet_e;
 
 
@@ -157,25 +157,25 @@ APP_TIMER_DEF(adv_timer);
 /* Default manufaturer data packet. This string represent the  fixed part of the adv packet */
 static const uint8_t adv_data_packet[ADV_DATA_PACKET_LENGTH] = 
 {
-	0x02,								/* first length */
-	ADV_FLAGS_TYPE,						/* adv flags type */
-	BR_EDR_NOT_SUPPORTED,				/* BR/EDR not supported */
+	0x02,											/* first length */
+	ADV_FLAGS_TYPE,							/* adv flags type */
+	BR_EDR_NOT_SUPPORTED,					/* BR/EDR not supported */
 	(uint8_t)(MANUF_DATA_LENGTH + 4),	/* second length */
-	MANUF_DATA_TYPE,					/* manufacturer data type */
-	(uint8_t)MANUFACTURER_ID,			/* manufacturer ID lower byte */
-	(uint8_t)(MANUFACTURER_ID >> 8),	/* manufacturer ID higher byte */
-	MANUF_DATA_LENGTH,					/* manufacturer data length */
-	(uint8_t)MANUF_SERVICE_ID,			/* service ID lower byte */
+	MANUF_DATA_TYPE,							/* manufacturer data type */
+	(uint8_t)MANUFACTURER_ID,				/* manufacturer ID lower byte */
+	(uint8_t)(MANUFACTURER_ID >> 8),		/* manufacturer ID higher byte */
+	MANUF_DATA_LENGTH,						/* manufacturer data length */
+	(uint8_t)MANUF_SERVICE_ID,				/* service ID lower byte */
 	(uint8_t)(MANUF_SERVICE_ID >> 8),	/* service ID higher byte */
-	INITIAL_STATE,						/* Data 0 */
-	0x00,								/* Data 1 */
-	0x00,								/* Data 2 */
-	0x00,								/* Data 3 */
-	0x00,								/* Data 4 */
-	0x00,								/* Data 5 */
-	0x00,								/* Data 6 */
-	0x00,								/* Data 7 */
-	TX_POWER_MEASURED_RSSI				/* RSSI TX power */
+	INITIAL_STATE,								/* Data 0 */
+	0x00,											/* Data 1 */
+	0x00,											/* Data 2 */
+	0x00,											/* Data 3 */
+	0x00,											/* Data 4 */
+	0x00,											/* Data 5 */
+	0x00,											/* Data 6 */
+	0x00,											/* Data 7 */
+	TX_POWER_MEASURED_RSSI					/* RSSI TX power */
 };
 
 
@@ -202,7 +202,7 @@ static uint8_t device_name[] = DEVICE_NAME;
 
 static void on_ble_evt					(ble_evt_t *);
 static void ble_evt_dispatch			(ble_evt_t *);
-static void gap_params_init				(void);
+static void gap_params_init			(void);
 static void advertising_init			(void);        
 static void ble_stack_init				(void);
 #ifdef FACE_INDEX_TEST
@@ -251,7 +251,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 		default:
 		{
    		/* No implementation needed. */
-         	break;
+   		break;
 		}
 	}
 }

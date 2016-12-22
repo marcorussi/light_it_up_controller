@@ -119,10 +119,6 @@ Discarded input sections
  .text          0x00000000        0x0 _build/application.o
  .data          0x00000000        0x0 _build/application.o
  .bss           0x00000000        0x0 _build/application.o
- .rodata.adv_values
-                0x00000000        0x2 _build/application.o
- .data.last_motion_state_index
-                0x00000000        0x1 _build/application.o
  .text          0x00000000        0x0 _build/app_error.o
  .data          0x00000000        0x0 _build/app_error.o
  .bss           0x00000000        0x0 _build/app_error.o

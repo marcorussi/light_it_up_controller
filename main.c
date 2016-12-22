@@ -88,19 +88,13 @@ static void power_manage(void)
 /* Function for application main entry */
 int main(void)
 {
-    /* Initialize */
-    APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, false);
+	/* Initialize */
+	APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, false);
 
 #ifdef LED_DEBUG
 	/* init debug pins */
-	nrf_gpio_pin_dir_set(21, NRF_GPIO_PIN_DIR_OUTPUT);
-	nrf_gpio_pin_dir_set(22, NRF_GPIO_PIN_DIR_OUTPUT);
-	nrf_gpio_pin_dir_set(23, NRF_GPIO_PIN_DIR_OUTPUT);
-	nrf_gpio_pin_dir_set(24, NRF_GPIO_PIN_DIR_OUTPUT);
-	nrf_gpio_pin_write(21, 0);
-	nrf_gpio_pin_write(22, 0);
-	nrf_gpio_pin_write(23, 0);
-	nrf_gpio_pin_write(24, 0);
+	nrf_gpio_pin_dir_set(7, NRF_GPIO_PIN_DIR_OUTPUT);
+	nrf_gpio_pin_write(7, 1);
 #endif
 
 #ifdef UART_DEBUG
@@ -111,16 +105,16 @@ int main(void)
 	/* init application */
 	app_init();
 
-    /* Enter main loop */
-    for (;;)
-    {
+	/* Enter main loop */
+	for (;;)
+	{
 		/* application main loop function */
 		app_run();
 
 		//nrf_delay_ms(200);
 
 		power_manage();
-    }
+	}
 }
 
 

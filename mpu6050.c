@@ -55,8 +55,8 @@
 /* ---------------- Local defines ------------------- */
 
 /* TWI pin numbers */
-#define TWI_SCL_PIN_NUMBER					12
-#define TWI_SDA_PIN_NUMBER					13
+#define TWI_SCL_PIN_NUMBER						5
+#define TWI_SDA_PIN_NUMBER						15
 
 /* Max number of pending TWI transactions */
 #define MAX_PENDING_TRANSACTIONS    		8
@@ -70,10 +70,10 @@
 #define MPU6050_BURST_READ_BYTES     		(MPU6050_BURST_NUM_OF_VALUES * MPU6050_VALUES_BYTES_LENGTH)
 
 /* Burst read buffer data length in bytes */
-#define BUFFER_SIZE  						MPU6050_BURST_READ_BYTES
+#define BUFFER_SIZE  							MPU6050_BURST_READ_BYTES
 
 /* MPU6050 device TWI address */
-#define MPU6050_ADDR     					0x68   
+#define MPU6050_ADDR     						0x68   
 
 /* Time to wait before configuring the MPU6050 at start up */
 #define MPU6050_POWER_UP_DELAY_MS			3000
@@ -83,15 +83,15 @@
 #define MPU6050_INIT_TRANSFER_COUNT 		6
 
 /* Registers addresses */
-#define CONFIG_REG_ADDR						0x1A
-#define GYRO_CONFIG_REG_ADDR				0x1B
-#define ACCEL_CONFIG_REG_ADDR				0x1C
+#define CONFIG_REG_ADDR							0x1A
+#define GYRO_CONFIG_REG_ADDR					0x1B
+#define ACCEL_CONFIG_REG_ADDR					0x1C
 #define SIGNAL_PATH_RESET_REG_ADDR			0x68
 #define POWER_MAN1_REG_ADDR					0x6B
 #define POWER_MAN2_REG_ADDR					0x6C
 
 /* Registers init values */
-#define CONFIG_REG_INIT_VALUE				0x02
+#define CONFIG_REG_INIT_VALUE					0x02
 #define GYRO_CONFIG_REG_INIT_VALUE			0x00
 #define ACCEL_CONFIG_REG_INIT_VALUE			0x08
 #define SIGNAL_PATH_RESET_REG_INIT_VALUE	0x07
@@ -99,7 +99,7 @@
 #define POWER_MAN2_REG_INIT_VALUE			0x00
 
 /* Expected WHO_AM_I register value */
-#define WHO_AM_I_REG_VALUE					0x68
+#define WHO_AM_I_REG_VALUE						0x68
 
 
 
@@ -189,14 +189,13 @@ static void bust_read_cb(ret_code_t result, void * p_user_data)
 	
 #ifdef UART_DEBUG
 	uint8_t uart_string[10];
-	//nrf_gpio_pin_toggle(21);
 	sprintf((char *)uart_string, "__________");
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 
 	/* if success */
-    if (result == NRF_SUCCESS)
-    {
+	if (result == NRF_SUCCESS)
+ 	{
 		/* get obtained acc xyz raw values and calculate final values */
 		for(i=0; i<MPU6050_ACC_XYZ_VALUES; i++)
 		{
@@ -297,28 +296,24 @@ bool mpu6050_start_burst_read(void)
 {
 	/* ATTENTION: always return success now */
 	bool success = true;
-#ifdef UART_DEBUG
-    /* Signal on LED that something is going on */
-    //nrf_gpio_pin_toggle(22);
-#endif
 
-    /* [these structures have to be "static" - they cannot be placed on stack
-       since the transaction is scheduled and these structures most likely
-       will be referred after this function returns] */
+	/* [these structures have to be "static" - they cannot be placed on stack
+ 		since the transaction is scheduled and these structures most likely
+	 	will be referred after this function returns] */
 	static app_twi_transfer_t const transfers[] =
-    {
-        MPU6050_READ_XYZ_TEMP(&m_buffer[0])
-    };
+	{
+		MPU6050_READ_XYZ_TEMP(&m_buffer[0])
+	};
 
-    static app_twi_transaction_t const transaction =
-    {
-        .callback            = bust_read_cb,
-        .p_user_data         = NULL,
-        .p_transfers         = transfers,
-        .number_of_transfers = sizeof(transfers) / sizeof(transfers[0])
-    };
+	static app_twi_transaction_t const transaction =
+	{
+		.callback            = bust_read_cb,
+		.p_user_data         = NULL,
+		.p_transfers         = transfers,
+		.number_of_transfers = sizeof(transfers) / sizeof(transfers[0])
+	};
 
-    APP_ERROR_CHECK(app_twi_schedule(&m_app_twi, &transaction));
+	APP_ERROR_CHECK(app_twi_schedule(&m_app_twi, &transaction));
 
 	return success;
 }
@@ -358,9 +353,6 @@ bool mpu6050_init( mpu6050_init_st *p_init )
 #ifdef UART_DEBUG
 			sprintf((char *)uart_string, "OK - %x", m_buffer[0]);
 			uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
-#endif
-#ifdef LED_DEBUG
-			nrf_gpio_pin_write(21, 0);
 #endif
 		}
 		else
