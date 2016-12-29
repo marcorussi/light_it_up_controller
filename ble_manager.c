@@ -26,6 +26,7 @@
 
 /* ------------------- Inclusions ------------------- */
 
+#include "config.h"
 #include <stdint.h>
 #include <string.h>
 #include "nordic_common.h"
@@ -44,8 +45,9 @@
 #include "app_timer.h"
 #include "app_trace.h"
 #include "app_util_platform.h"
-
-#include "config.h"
+#ifdef UART_DEBUG
+#include "uart.h"
+#endif
 #include "ble_manager.h"
 
 
@@ -368,7 +370,12 @@ static void timer_handler(void * p_context)
 {
 	static uint8_t bytes_to_change[3];
 #ifdef LED_DEBUG
-	nrf_gpio_pin_toggle(24);
+	nrf_gpio_pin_toggle(7);
+#endif
+#ifdef UART_DEBUG
+	uint8_t uart_string[20];
+	sprintf((char *)uart_string, "_ADV TOGGLE");
+	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 	/* increment fake face index */
 	fake_face_index++;
@@ -432,6 +439,12 @@ void ble_man_adv_start(void)
 
 	/* init advertising */
 	advertising_init();
+
+#ifdef UART_DEBUG
+	uint8_t uart_string[20];
+	sprintf((char *)uart_string, "_ADV INITIALISED");
+	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+#endif
 
 	/* start advertising */
 	err_code = sd_ble_gap_adv_start(&m_adv_params);

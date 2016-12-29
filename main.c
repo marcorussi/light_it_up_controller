@@ -55,8 +55,7 @@
 #define DEAD_BEEF                       	0xDEADBEEF                        
 
 #define APP_TIMER_PRESCALER             	0                           	/* Value of the RTC1 PRESCALER register */
-#define APP_TIMER_MAX_TIMERS            	(2+BSP_APP_TIMERS_NUMBER)     	/* Maximum number of simultaneously created timers */
-#define APP_TIMER_OP_QUEUE_SIZE         	4                             	/* Size of timer operation queues */
+#define APP_TIMER_OP_QUEUE_SIZE         	4                         		/* Size of timer operation queues */
 
 
 
@@ -94,12 +93,12 @@ int main(void)
 #ifdef LED_DEBUG
 	/* init debug pins */
 	nrf_gpio_pin_dir_set(7, NRF_GPIO_PIN_DIR_OUTPUT);
-	nrf_gpio_pin_write(7, 1);
+	nrf_gpio_pin_write(7, 0);
 #endif
 
 #ifdef UART_DEBUG
 	/* init UART */
-    uart_init();
+   uart_init();
 #endif
 
 	/* init application */

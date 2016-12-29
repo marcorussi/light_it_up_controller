@@ -50,12 +50,12 @@
 /* --------------- Local defines ----------------- */
 
 /* UART TX and RX buffers size */
-#define UART_TX_BUF_SIZE            		256
-#define UART_RX_BUF_SIZE            		1
+#define UART_TX_BUF_SIZE            	256
+#define UART_RX_BUF_SIZE            	1
 
 /* UART interface pins numbers */
-#define RX_PIN_NUMBER						7
-#define TX_PIN_NUMBER						30
+#define RX_PIN_NUMBER						2
+#define TX_PIN_NUMBER						1
 #define RTS_PIN_NUMBER						3
 #define CTS_PIN_NUMBER 						4
 

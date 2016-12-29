@@ -73,7 +73,7 @@
 #define BUFFER_SIZE  							MPU6050_BURST_READ_BYTES
 
 /* MPU6050 device TWI address */
-#define MPU6050_ADDR     						0x68   
+#define MPU6050_ADDR     						0x69   
 
 /* Time to wait before configuring the MPU6050 at start up */
 #define MPU6050_POWER_UP_DELAY_MS			3000
@@ -333,7 +333,7 @@ bool mpu6050_init( mpu6050_init_st *p_init )
 	nrf_delay_ms(MPU6050_POWER_UP_DELAY_MS);
 
 	/* innit TWI module */
-    twi_config();
+   twi_config();
 
 	/* perfomr WHO_AM_I register value check. This function is blocking */
 	APP_ERROR_CHECK(app_twi_perform(&m_app_twi, mpu6050_whoami_transfers, MPU6050_WHO_AM_I_TRANSFER_COUNT, NULL));

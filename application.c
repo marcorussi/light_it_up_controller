@@ -228,20 +228,20 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 		/* over 90DPS threshold */
 		if(p_data[i] > GYRO_LSB_THRESHOLD_90DPS)
 		{
-			SET_MOTION_FLAG(i, MOTION_FLAGS_90DPS_POS);
+			SET_MOTION_FLAG((i-4), MOTION_FLAGS_90DPS_POS);
 		}
 		/* around 90DPS */
 		else if((p_data[i] < GYRO_LSB_THRESHOLD_90DPS)
 		     && (p_data[i] > GYRO_LSB_THRESHOLD_N90DPS))
 		{
-			CLEAR_MOTION_FLAG(i, MOTION_FLAGS_90DPS_POS);
-			CLEAR_MOTION_FLAG(i, MOTION_FLAGS_N90DPS_POS);
+			CLEAR_MOTION_FLAG((i-4), MOTION_FLAGS_90DPS_POS);
+			CLEAR_MOTION_FLAG((i-4), MOTION_FLAGS_N90DPS_POS);
 		}
 		/* over N90DPS threshold */
 		else if(p_data[i] < GYRO_LSB_THRESHOLD_N90DPS)
 
 		{
-			SET_MOTION_FLAG(i, MOTION_FLAGS_N90DPS_POS);
+			SET_MOTION_FLAG((i-4), MOTION_FLAGS_N90DPS_POS);
 		}
 		else
 		{
@@ -287,7 +287,7 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 	}	
 
 	/* if motion state has changed */
-	if(motion_state_index != last_motion_state_index)
+	if(1)//if(motion_state_index != last_motion_state_index)
 	{
 		/* store motion state index */
 		last_motion_state_index = motion_state_index;

@@ -25,16 +25,16 @@
 
 
 /* Uncomment the following define for enabling LED debug regardless UART */
-//#define LED_DEBUG
+#define LED_DEBUG
 
 /* Uncomment the following define for enabling debug over UART */
-//#define UART_DEBUG
+#define UART_DEBUG
 
 /* Uncomment the following define for enabling the accelerometer and its management */
-//#define ENABLE_ACCELEROMETER
+#define ENABLE_ACCELEROMETER
 
 /* Uncomment the following define for enabling the test of face index update in the BLE adv packet */
-#define FACE_INDEX_TEST
+//#define FACE_INDEX_TEST
 
 /* Update time in ms for burst read of MPU6050 */
 #define CFG_MPU6050_BURST_READ_UPDATE_MS				1000
