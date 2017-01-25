@@ -25,6 +25,7 @@ GNU_INSTALL_ROOT := /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2
 GNU_VERSION := 4.9.3
 GNU_PREFIX := arm-none-eabi
 ```
+Verify also the JLink path in tools/nrfjprog.sh
 
 **Flash**
 
@@ -37,6 +38,12 @@ Connect your nrf51 Dev. Kit, make and flash it:
 You can erase the whole flash memory by running:
 
     $ make erase
+
+**DFU Upgrade**
+
+For creating a .zip packet for DFU upgrade run the following command:
+
+nrfutil dfu genpkg liu_controller.zip --application ble_controller_s130.hex --application-version 0xffffffff --dev-revision 0xffff --dev-type 0xffff --sd-req 0xfffe
 
 
 

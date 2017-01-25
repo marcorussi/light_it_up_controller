@@ -37,7 +37,7 @@
 //#define FACE_INDEX_TEST
 
 /* Update time in ms for burst read of MPU6050 */
-#define CFG_MPU6050_BURST_READ_UPDATE_MS				1000
+#define CFG_MPU6050_BURST_READ_UPDATE_MS				200
 
 /* Update time in ms for BLE advertisement packet */
 #define CFG_BLE_ADV_UPDATE_MS								3000

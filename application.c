@@ -106,10 +106,27 @@
 #define MOTION_FLAGS_N90DPS_POS					8
 
 /* Codified XYZ motion info from flags */
-#define MOTION_FLAGS_FACE_ON						0x0100	/* Z 1G */
-#define MOTION_FLAGS_FACE_OFF						0x0200 	/* Z N1G */
-#define MOTION_FLAGS_ROTATE_RIGHT				0x0400	/* Z 90DPS */
-#define MOTION_FLAGS_ROTATE_LEFT					0x0800	/* Z N90DPS */
+#define MOTION_FLAGS_X_FACE_UP					0x0001	/* X 1G */
+#define MOTION_FLAGS_X_FACE_DOWN					0x0002 	/* X N1G */
+#define MOTION_FLAGS_X_ROTATE_RIGHT_1			0x0005	/* X 90DPS and 1G */
+#define MOTION_FLAGS_X_ROTATE_RIGHT_2			0x0006	/* X 90DPS and N1G */
+#define MOTION_FLAGS_X_ROTATE_LEFT_1			0x0009	/* X N90DPS and 1G */
+#define MOTION_FLAGS_X_ROTATE_LEFT_2			0x000A	/* X N90DPS and N1G */
+
+#define MOTION_FLAGS_Y_FACE_UP					0x0010	/* Y 1G */
+#define MOTION_FLAGS_Y_FACE_DOWN					0x0020 	/* Y N1G */
+#define MOTION_FLAGS_Y_ROTATE_RIGHT_1			0x0050	/* Y 90DPS and 1G */
+#define MOTION_FLAGS_Y_ROTATE_RIGHT_2			0x0060	/* Y 90DPS and N1G */
+#define MOTION_FLAGS_Y_ROTATE_LEFT_1			0x0090	/* Y N90DPS and 1G */
+#define MOTION_FLAGS_Y_ROTATE_LEFT_2			0x00A0	/* Y N90DPS and N1G */
+
+#define MOTION_FLAGS_Z_FACE_UP					0x0100	/* Z 1G */
+#define MOTION_FLAGS_Z_FACE_DOWN					0x0200 	/* Z N1G */
+#define MOTION_FLAGS_Z_ROTATE_RIGHT_1			0x0500	/* Z 90DPS and 1G */
+#define MOTION_FLAGS_Z_ROTATE_RIGHT_2			0x0600	/* Z 90DPS and N1G */
+#define MOTION_FLAGS_Z_ROTATE_LEFT_1			0x0900	/* Z N90DPS and 1G */
+#define MOTION_FLAGS_Z_ROTATE_LEFT_2			0x0A00	/* Z 90DPS and N1G */
+
 #endif
 
 
@@ -119,10 +136,19 @@
 
 typedef enum
 {
-	MOTION_STATE_FACE_ON,
- 	MOTION_STATE_FACE_OFF,
- 	MOTION_STATE_ROTATE_RIGHT,
- 	MOTION_STATE_ROTATE_LEFT,
+	MOTION_STATE_X_FACE_UP,
+ 	MOTION_STATE_X_FACE_DOWN,
+ 	MOTION_STATE_X_ROTATE_RIGHT,
+ 	MOTION_STATE_X_ROTATE_LEFT,
+	MOTION_STATE_Y_FACE_UP,
+ 	MOTION_STATE_Y_FACE_DOWN,
+ 	MOTION_STATE_Y_ROTATE_RIGHT,
+ 	MOTION_STATE_Y_ROTATE_LEFT,
+	MOTION_STATE_Z_FACE_UP,
+ 	MOTION_STATE_Z_FACE_DOWN,
+ 	MOTION_STATE_Z_ROTATE_RIGHT,
+ 	MOTION_STATE_Z_ROTATE_LEFT,
+	NUM_OF_MOTION_STATES,		/* Number of motion detected states */
 	MOTION_STATE_INVALID = 0xFF		
 } motion_state_ke;
 
@@ -130,6 +156,10 @@ typedef enum
 
 
 /* ------------------- Local macros ------------------- */
+
+/* "motion_codified" register configuration */
+/* meaning:  n/a n/a n/a n/a - Zn90dps Z90dps Zn1g Z1g - Yn90dps Y90dps Yn1g Y1g - Xn90dps X90dps Xn1g X1g
+   bit pos:   15  14  13  12 -   11      10     9    8      7       6     5    4      3       2     1    0 */
 
 /* Macros to set, clear and check motion flags */
 #define SET_MOTION_FLAG(a, f)						(motion_codified |= (f<<(4*a)))
@@ -148,13 +178,38 @@ APP_TIMER_DEF(ble_update_trigger);
 
 /* ------------------- Local const variables ------------------- */
 #ifdef ENABLE_ACCELEROMETER
-/* Default characteristic values */
-static const uint8_t adv_values[4] = 
+/* Default characteristic values for each motion state */
+static const uint8_t adv_values[NUM_OF_MOTION_STATES] = 
 {
-	0x00,					
-	0x01,
-	0x02,	
-	0x03										
+	0x10,					
+	0x11,
+	0x12,	
+	0x13,
+	0x14,
+	0x15,
+	0x16,
+	0x17,
+	0x18,
+	0x19,
+	0x1A,
+	0x1B						
+};
+
+/* Default strings for each motion state */
+static const char *motion_states_strings[NUM_OF_MOTION_STATES] = 
+{
+	"X UP",					
+	"X DOWN",	
+	"X ROT R",	
+	"X ROT L",	
+	"Y UP",					
+	"Y DOWN",	
+	"Y ROT R",	
+	"Y ROT L",	
+	"Z UP",					
+	"Z DOWN",	
+	"Z ROT R",	
+	"Z ROT L"					
 };
 #endif
 
@@ -249,7 +304,8 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 		}
 	}
 
-#ifdef UART_DEBUG
+//#ifdef UART_DEBUG
+#if 0
 	uint8_t uart_string[20];
 	sprintf((char *)uart_string, "ACC_X: %d", p_data[0]);
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
@@ -268,17 +324,47 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 	/* get motion state index to broadcast */
 	switch(motion_codified)
 	{
-		case MOTION_FLAGS_FACE_ON:
-			motion_state_index = MOTION_STATE_FACE_ON;
+		case MOTION_FLAGS_X_FACE_UP:
+			motion_state_index = MOTION_STATE_X_FACE_UP;
 			break;
-		case MOTION_FLAGS_FACE_OFF:
-			motion_state_index = MOTION_STATE_FACE_OFF;
+		case MOTION_FLAGS_X_FACE_DOWN:
+			motion_state_index = MOTION_STATE_X_FACE_DOWN;
 			break;
-		case MOTION_FLAGS_ROTATE_RIGHT:
-			motion_state_index = MOTION_STATE_ROTATE_RIGHT;
+		case MOTION_FLAGS_X_ROTATE_RIGHT_1:
+		case MOTION_FLAGS_X_ROTATE_RIGHT_2:
+			motion_state_index = MOTION_STATE_X_ROTATE_RIGHT;
 			break;
-		case MOTION_FLAGS_ROTATE_LEFT:
-			motion_state_index = MOTION_STATE_ROTATE_LEFT;
+		case MOTION_FLAGS_X_ROTATE_LEFT_1:
+		case MOTION_FLAGS_X_ROTATE_LEFT_2:
+			motion_state_index = MOTION_STATE_X_ROTATE_LEFT;
+			break;
+		case MOTION_FLAGS_Y_FACE_UP:
+			motion_state_index = MOTION_STATE_Y_FACE_UP;
+			break;
+		case MOTION_FLAGS_Y_FACE_DOWN:
+			motion_state_index = MOTION_STATE_Y_FACE_DOWN;
+			break;
+		case MOTION_FLAGS_Y_ROTATE_RIGHT_1:
+		case MOTION_FLAGS_Y_ROTATE_RIGHT_2:
+			motion_state_index = MOTION_STATE_Y_ROTATE_RIGHT;
+			break;
+		case MOTION_FLAGS_Y_ROTATE_LEFT_1:
+		case MOTION_FLAGS_Y_ROTATE_LEFT_2:
+			motion_state_index = MOTION_STATE_Y_ROTATE_LEFT;
+			break;
+		case MOTION_FLAGS_Z_FACE_UP:
+			motion_state_index = MOTION_STATE_Z_FACE_UP;
+			break;
+		case MOTION_FLAGS_Z_FACE_DOWN:
+			motion_state_index = MOTION_STATE_Z_FACE_DOWN;
+			break;
+		case MOTION_FLAGS_Z_ROTATE_RIGHT_1:
+		case MOTION_FLAGS_Z_ROTATE_RIGHT_2:
+			motion_state_index = MOTION_STATE_Z_ROTATE_RIGHT;
+			break;
+		case MOTION_FLAGS_Z_ROTATE_LEFT_1:
+		case MOTION_FLAGS_Z_ROTATE_LEFT_2:
+			motion_state_index = MOTION_STATE_Z_ROTATE_LEFT;
 			break;
 		default:
 			/* invalid motion state index */
@@ -287,13 +373,15 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 	}	
 
 	/* if motion state has changed */
-	if(1)//if(motion_state_index != last_motion_state_index)
+	if((motion_state_index != last_motion_state_index)
+	&& (motion_state_index != MOTION_STATE_INVALID))
 	{
 		/* store motion state index */
 		last_motion_state_index = motion_state_index;
 #ifdef UART_DEBUG
-		uint8_t uart_string[20];
-		sprintf((char *)uart_string, "_MOTION STATE: %x - %d", motion_codified, motion_state_index);
+		uint8_t uart_string[40];
+		sprintf((char *)uart_string, "_MOTION STATE: %x - %s", motion_codified, 
+																				 (const char *)motion_states_strings[motion_state_index]);
 		uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 	}
@@ -352,8 +440,8 @@ static void timer_config(void)
 	APP_ERROR_CHECK(err_code);
 
 	/* start BLE adv update trigger timer */
-	err_code = app_timer_start(ble_update_trigger, BLE_UPDATE_TIMER_TICK_COUNT, NULL);
-	APP_ERROR_CHECK(err_code);
+	//err_code = app_timer_start(ble_update_trigger, BLE_UPDATE_TIMER_TICK_COUNT, NULL);
+	//APP_ERROR_CHECK(err_code);
 }
 #endif
 
@@ -386,6 +474,13 @@ void app_init( void )
 	{
 		/* mpu6050 init failed. Do nothing */
 	}
+#endif
+
+#ifdef FACE_INDEX_TEST
+#ifdef UART_DEBUG
+		uint8_t uart_string[] = "FAKE TEST";
+		uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+#endif
 #endif
 	/* start advertising */
 	ble_man_adv_start();

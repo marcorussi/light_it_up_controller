@@ -187,7 +187,8 @@ static void bust_read_cb(ret_code_t result, void * p_user_data)
 	uint8_t i;
 	uint16_t raw_values[MPU6050_BURST_NUM_OF_VALUES];
 	
-#ifdef UART_DEBUG
+//#ifdef UART_DEBUG
+#if 0
 	uint8_t uart_string[10];
 	sprintf((char *)uart_string, "__________");
 	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));

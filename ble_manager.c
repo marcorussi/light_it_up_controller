@@ -230,9 +230,9 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 			/* if advertising timeout */
          if (p_gap_evt->params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING)
          {
-				/* ATTENTION: TODO */
-				//uint32_t err_code = sd_ble_gap_adv_start(&m_adv_params);
-				//APP_ERROR_CHECK(err_code);
+				/* ATTENTION: use this timeout for going to sleep. TODO */
+				uint32_t err_code = sd_ble_gap_adv_start(&m_adv_params);
+				APP_ERROR_CHECK(err_code);
 			}
 			else
 			{

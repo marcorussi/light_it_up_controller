@@ -694,7 +694,7 @@ END GROUP
  *(fs_data)
                 0x00000000                PROVIDE (__stop_fs_data, .)
 
-.text           0x0001b000     0x3a54
+.text           0x0001b000     0x3a38
  *(.isr_vector)
  .isr_vector    0x0001b000       0xc0 _build/gcc_startup_nrf51.o
                 0x0001b000                __isr_vector
@@ -726,25 +726,25 @@ END GROUP
                 0x0001b2dc       0x48 _build/uart.o
                 0x0001b2dc                uart_init
  .text.bust_read_cb
-                0x0001b324       0x94 _build/mpu6050.o
+                0x0001b324       0x74 _build/mpu6050.o
  .text.mpu6050_start_burst_read
-                0x0001b3b8       0x20 _build/mpu6050.o
-                0x0001b3b8                mpu6050_start_burst_read
+                0x0001b398       0x20 _build/mpu6050.o
+                0x0001b398                mpu6050_start_burst_read
  .text.mpu6050_init
-                0x0001b3d8       0xdc _build/mpu6050.o
-                0x0001b3d8                mpu6050_init
+                0x0001b3b8       0xdc _build/mpu6050.o
+                0x0001b3b8                mpu6050_init
  .text.sd_ble_gap_adv_data_set
-                0x0001b4b4        0x4 _build/ble_manager.o
+                0x0001b494        0x4 _build/ble_manager.o
  .text.sd_ble_gap_adv_start
-                0x0001b4b8        0x4 _build/ble_manager.o
+                0x0001b498        0x4 _build/ble_manager.o
  .text.sd_ble_gap_adv_stop
-                0x0001b4bc        0x4 _build/ble_manager.o
+                0x0001b49c        0x4 _build/ble_manager.o
  .text.sd_ble_gap_appearance_set
-                0x0001b4c0        0x4 _build/ble_manager.o
+                0x0001b4a0        0x4 _build/ble_manager.o
  .text.sd_ble_gap_device_name_set
-                0x0001b4c4        0x4 _build/ble_manager.o
+                0x0001b4a4        0x4 _build/ble_manager.o
  .text.ble_evt_dispatch
-                0x0001b4c8        0x4 _build/ble_manager.o
+                0x0001b4a8       0x24 _build/ble_manager.o
  .text.ble_man_adv_update
                 0x0001b4cc       0x64 _build/ble_manager.o
                 0x0001b4cc                ble_man_adv_update
@@ -755,247 +755,247 @@ END GROUP
                 0x0001b5d8       0xb0 _build/ble_manager.o
                 0x0001b5d8                ble_man_init
  .text.mpu6050_burst_read_callback
-                0x0001b688      0x2cc _build/application.o
+                0x0001b688      0x284 _build/application.o
  .text.update_timeout_handler
-                0x0001b954       0x40 _build/application.o
+                0x0001b90c       0x40 _build/application.o
  .text.read_timeout_handler
-                0x0001b994        0x8 _build/application.o
+                0x0001b94c        0x8 _build/application.o
  .text.app_init
-                0x0001b99c       0x90 _build/application.o
-                0x0001b99c                app_init
- .text.app_run  0x0001ba2c        0x4 _build/application.o
-                0x0001ba2c                app_run
+                0x0001b954       0x78 _build/application.o
+                0x0001b954                app_init
+ .text.app_run  0x0001b9cc        0x4 _build/application.o
+                0x0001b9cc                app_run
  .text.app_error_handler_bare
-                0x0001ba30       0x20 _build/app_error.o
-                0x0001ba30                app_error_handler_bare
+                0x0001b9d0       0x20 _build/app_error.o
+                0x0001b9d0                app_error_handler_bare
  .text.app_error_fault_handler
-                0x0001ba50       0x1c _build/app_error_weak.o
-                0x0001ba50                app_error_fault_handler
+                0x0001b9f0       0x1c _build/app_error_weak.o
+                0x0001b9f0                app_error_fault_handler
  .text.rtc1_stop
-                0x0001ba6c       0x78 _build/app_timer.o
+                0x0001ba0c       0x78 _build/app_timer.o
  .text.RTC1_IRQHandler
-                0x0001bae4       0xdc _build/app_timer.o
-                0x0001bae4                RTC1_IRQHandler
+                0x0001ba84       0xdc _build/app_timer.o
+                0x0001ba84                RTC1_IRQHandler
  .text.SWI0_IRQHandler
-                0x0001bbc0      0x448 _build/app_timer.o
-                0x0001bbc0                SWI0_IRQHandler
+                0x0001bb60      0x448 _build/app_timer.o
+                0x0001bb60                SWI0_IRQHandler
  .text.app_timer_init
-                0x0001c008       0xe4 _build/app_timer.o
-                0x0001c008                app_timer_init
+                0x0001bfa8       0xe4 _build/app_timer.o
+                0x0001bfa8                app_timer_init
  .text.app_timer_create
-                0x0001c0ec       0x34 _build/app_timer.o
-                0x0001c0ec                app_timer_create
+                0x0001c08c       0x34 _build/app_timer.o
+                0x0001c08c                app_timer_create
  .text.app_timer_start
-                0x0001c120       0xf8 _build/app_timer.o
-                0x0001c120                app_timer_start
+                0x0001c0c0       0xf8 _build/app_timer.o
+                0x0001c0c0                app_timer_start
  .text.app_fifo_init
-                0x0001c218       0x28 _build/app_fifo.o
-                0x0001c218                app_fifo_init
+                0x0001c1b8       0x28 _build/app_fifo.o
+                0x0001c1b8                app_fifo_init
  .text.app_fifo_put
-                0x0001c240       0x28 _build/app_fifo.o
-                0x0001c240                app_fifo_put
+                0x0001c1e0       0x28 _build/app_fifo.o
+                0x0001c1e0                app_fifo_put
  .text.app_fifo_get
-                0x0001c268       0x24 _build/app_fifo.o
-                0x0001c268                app_fifo_get
+                0x0001c208       0x24 _build/app_fifo.o
+                0x0001c208                app_fifo_get
  .text.internal_transaction_cb
-                0x0001c28c        0xc _build/app_twi.o
+                0x0001c22c        0xc _build/app_twi.o
  .text.start_pending_transaction
-                0x0001c298      0x14c _build/app_twi.o
+                0x0001c238      0x14c _build/app_twi.o
  .text.twi_event_handler
-                0x0001c3e4       0xe8 _build/app_twi.o
+                0x0001c384       0xe8 _build/app_twi.o
  .text.app_twi_init
-                0x0001c4cc       0x40 _build/app_twi.o
-                0x0001c4cc                app_twi_init
+                0x0001c46c       0x40 _build/app_twi.o
+                0x0001c46c                app_twi_init
  .text.app_twi_schedule
-                0x0001c50c       0x6c _build/app_twi.o
-                0x0001c50c                app_twi_schedule
+                0x0001c4ac       0x6c _build/app_twi.o
+                0x0001c4ac                app_twi_schedule
  .text.app_twi_perform
-                0x0001c578       0xc8 _build/app_twi.o
-                0x0001c578                app_twi_perform
+                0x0001c518       0xc8 _build/app_twi.o
+                0x0001c518                app_twi_perform
  .text.app_util_critical_region_enter
-                0x0001c640       0x40 _build/app_util_platform.o
-                0x0001c640                app_util_critical_region_enter
+                0x0001c5e0       0x40 _build/app_util_platform.o
+                0x0001c5e0                app_util_critical_region_enter
  .text.app_util_critical_region_exit
-                0x0001c680       0x2c _build/app_util_platform.o
-                0x0001c680                app_util_critical_region_exit
+                0x0001c620       0x2c _build/app_util_platform.o
+                0x0001c620                app_util_critical_region_exit
  .text.nrf_delay_ms
-                0x0001c6ac       0x3c _build/nrf_delay.o
-                0x0001c6ac                nrf_delay_ms
+                0x0001c64c       0x3c _build/nrf_delay.o
+                0x0001c64c                nrf_delay_ms
  .text.uart_event_handler
-                0x0001c6e8       0xc8 _build/app_uart_fifo.o
+                0x0001c688       0xc8 _build/app_uart_fifo.o
  .text.app_uart_init
-                0x0001c7b0       0xa4 _build/app_uart_fifo.o
-                0x0001c7b0                app_uart_init
+                0x0001c750       0xa4 _build/app_uart_fifo.o
+                0x0001c750                app_uart_init
  .text.app_uart_get
-                0x0001c854       0x34 _build/app_uart_fifo.o
-                0x0001c854                app_uart_get
+                0x0001c7f4       0x34 _build/app_uart_fifo.o
+                0x0001c7f4                app_uart_get
  .text.app_uart_put
-                0x0001c888       0x40 _build/app_uart_fifo.o
-                0x0001c888                app_uart_put
+                0x0001c828       0x40 _build/app_uart_fifo.o
+                0x0001c828                app_uart_put
  .text.nrf_drv_clock_on_soc_event
-                0x0001c8c8       0x24 _build/nrf_drv_clock.o
-                0x0001c8c8                nrf_drv_clock_on_soc_event
+                0x0001c868       0x24 _build/nrf_drv_clock.o
+                0x0001c868                nrf_drv_clock_on_soc_event
  .text.nrf_drv_common_irq_enable
-                0x0001c8ec       0x80 _build/nrf_drv_common.o
-                0x0001c8ec                nrf_drv_common_irq_enable
+                0x0001c88c       0x80 _build/nrf_drv_common.o
+                0x0001c88c                nrf_drv_common_irq_enable
  .text.GPIOTE_IRQHandler
-                0x0001c96c      0x2a8 _build/nrf_drv_gpiote.o
-                0x0001c96c                GPIOTE_IRQHandler
+                0x0001c90c      0x2a8 _build/nrf_drv_gpiote.o
+                0x0001c90c                GPIOTE_IRQHandler
  .text.TIMER0_IRQHandler
-                0x0001cc14       0xb4 _build/nrf_drv_timer.o
-                0x0001cc14                TIMER0_IRQHandler
+                0x0001cbb4       0xb4 _build/nrf_drv_timer.o
+                0x0001cbb4                TIMER0_IRQHandler
  .text.twi_transfer
-                0x0001ccc8      0x110 _build/nrf_drv_twi.o
+                0x0001cc68      0x110 _build/nrf_drv_twi.o
  .text.twi_rx_start_transfer
-                0x0001cdd8      0x170 _build/nrf_drv_twi.o
+                0x0001cd78      0x170 _build/nrf_drv_twi.o
  .text.nrf_drv_twi_init
-                0x0001cf48      0x1e0 _build/nrf_drv_twi.o
-                0x0001cf48                nrf_drv_twi_init
+                0x0001cee8      0x1e0 _build/nrf_drv_twi.o
+                0x0001cee8                nrf_drv_twi_init
  .text.nrf_drv_twi_enable
-                0x0001d128       0x24 _build/nrf_drv_twi.o
-                0x0001d128                nrf_drv_twi_enable
+                0x0001d0c8       0x24 _build/nrf_drv_twi.o
+                0x0001d0c8                nrf_drv_twi_enable
  .text.nrf_drv_twi_xfer
-                0x0001d14c      0x1ac _build/nrf_drv_twi.o
-                0x0001d14c                nrf_drv_twi_xfer
+                0x0001d0ec      0x1ac _build/nrf_drv_twi.o
+                0x0001d0ec                nrf_drv_twi_xfer
  .text.SPI0_TWI0_IRQHandler
-                0x0001d2f8      0x364 _build/nrf_drv_twi.o
-                0x0001d2f8                SPI0_TWI0_IRQHandler
+                0x0001d298      0x364 _build/nrf_drv_twi.o
+                0x0001d298                SPI0_TWI0_IRQHandler
  .text.nrf_drv_uart_init
-                0x0001d65c      0x120 _build/nrf_drv_uart.o
-                0x0001d65c                nrf_drv_uart_init
+                0x0001d5fc      0x120 _build/nrf_drv_uart.o
+                0x0001d5fc                nrf_drv_uart_init
  .text.nrf_drv_uart_tx
-                0x0001d77c       0xb4 _build/nrf_drv_uart.o
-                0x0001d77c                nrf_drv_uart_tx
+                0x0001d71c       0xb4 _build/nrf_drv_uart.o
+                0x0001d71c                nrf_drv_uart_tx
  .text.nrf_drv_uart_tx_in_progress
-                0x0001d830       0x10 _build/nrf_drv_uart.o
-                0x0001d830                nrf_drv_uart_tx_in_progress
+                0x0001d7d0       0x10 _build/nrf_drv_uart.o
+                0x0001d7d0                nrf_drv_uart_tx_in_progress
  .text.nrf_drv_uart_rx
-                0x0001d840      0x130 _build/nrf_drv_uart.o
-                0x0001d840                nrf_drv_uart_rx
+                0x0001d7e0      0x130 _build/nrf_drv_uart.o
+                0x0001d7e0                nrf_drv_uart_rx
  .text.nrf_drv_uart_rx_enable
-                0x0001d970       0x2c _build/nrf_drv_uart.o
-                0x0001d970                nrf_drv_uart_rx_enable
+                0x0001d910       0x2c _build/nrf_drv_uart.o
+                0x0001d910                nrf_drv_uart_rx_enable
  .text.UART0_IRQHandler
-                0x0001d99c      0x1a8 _build/nrf_drv_uart.o
-                0x0001d99c                UART0_IRQHandler
+                0x0001d93c      0x1a8 _build/nrf_drv_uart.o
+                0x0001d93c                UART0_IRQHandler
  .text.SystemInit
-                0x0001db44       0xec _build/system_nrf51.o
-                0x0001db44                SystemInit
+                0x0001dae4       0xec _build/system_nrf51.o
+                0x0001dae4                SystemInit
  .text.sd_evt_get
-                0x0001dc30        0x4 _build/softdevice_handler.o
+                0x0001dbd0        0x4 _build/softdevice_handler.o
  .text.sd_softdevice_enable
-                0x0001dc34        0x4 _build/softdevice_handler.o
+                0x0001dbd4        0x4 _build/softdevice_handler.o
  .text.sd_ble_enable
-                0x0001dc38        0x4 _build/softdevice_handler.o
+                0x0001dbd8        0x4 _build/softdevice_handler.o
  .text.sd_ble_evt_get
-                0x0001dc3c        0x4 _build/softdevice_handler.o
+                0x0001dbdc        0x4 _build/softdevice_handler.o
  .text.softdevice_fault_handler
-                0x0001dc40        0x8 _build/softdevice_handler.o
-                0x0001dc40                softdevice_fault_handler
+                0x0001dbe0        0x8 _build/softdevice_handler.o
+                0x0001dbe0                softdevice_fault_handler
  .text.intern_softdevice_events_execute.part.0
-                0x0001dc48       0xd4 _build/softdevice_handler.o
+                0x0001dbe8       0xd4 _build/softdevice_handler.o
  .text.softdevice_handler_init
-                0x0001dd1c       0x7c _build/softdevice_handler.o
-                0x0001dd1c                softdevice_handler_init
+                0x0001dcbc       0x7c _build/softdevice_handler.o
+                0x0001dcbc                softdevice_handler_init
  .text.softdevice_ble_evt_handler_set
-                0x0001dd98       0x14 _build/softdevice_handler.o
-                0x0001dd98                softdevice_ble_evt_handler_set
+                0x0001dd38       0x14 _build/softdevice_handler.o
+                0x0001dd38                softdevice_ble_evt_handler_set
  .text.SWI2_IRQHandler
-                0x0001ddac       0x30 _build/softdevice_handler.o
-                0x0001ddac                SWI2_IRQHandler
+                0x0001dd4c       0x30 _build/softdevice_handler.o
+                0x0001dd4c                SWI2_IRQHandler
  .text.softdevice_enable_get_default_config
-                0x0001dddc       0x30 _build/softdevice_handler.o
-                0x0001dddc                softdevice_enable_get_default_config
+                0x0001dd7c       0x30 _build/softdevice_handler.o
+                0x0001dd7c                softdevice_enable_get_default_config
  .text.sd_check_ram_start
-                0x0001de0c       0x14 _build/softdevice_handler.o
-                0x0001de0c                sd_check_ram_start
+                0x0001ddac       0x14 _build/softdevice_handler.o
+                0x0001ddac                sd_check_ram_start
  .text.softdevice_enable
-                0x0001de20       0x1c _build/softdevice_handler.o
-                0x0001de20                softdevice_enable
- .text          0x0001de3c       0x4c _build/gcc_startup_nrf51.o
-                0x0001de3c                Reset_Handler
-                0x0001de7c                NMI_Handler
-                0x0001de7e                HardFault_Handler
-                0x0001de80                SVC_Handler
-                0x0001de82                PendSV_Handler
-                0x0001de84                SysTick_Handler
-                0x0001de86                TIMER2_IRQHandler
-                0x0001de86                RTC0_IRQHandler
-                0x0001de86                POWER_CLOCK_IRQHandler
-                0x0001de86                RADIO_IRQHandler
-                0x0001de86                LPCOMP_IRQHandler
-                0x0001de86                SWI4_IRQHandler
-                0x0001de86                TEMP_IRQHandler
-                0x0001de86                QDEC_IRQHandler
-                0x0001de86                SWI5_IRQHandler
-                0x0001de86                TIMER1_IRQHandler
-                0x0001de86                ECB_IRQHandler
-                0x0001de86                Default_Handler
-                0x0001de86                ADC_IRQHandler
-                0x0001de86                SWI3_IRQHandler
-                0x0001de86                CCM_AAR_IRQHandler
-                0x0001de86                WDT_IRQHandler
-                0x0001de86                RNG_IRQHandler
-                0x0001de86                SPI1_TWI1_IRQHandler
-                0x0001de86                SWI1_IRQHandler
- .text          0x0001de88      0x120 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/libgcc.a(_udivsi3.o)
-                0x0001de88                __udivsi3
-                0x0001de88                __aeabi_uidiv
-                0x0001df94                __aeabi_uidivmod
- .text          0x0001dfa8        0x4 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/libgcc.a(_dvmd_tls.o)
-                0x0001dfa8                __aeabi_ldiv0
-                0x0001dfa8                __aeabi_idiv0
- .text.memcpy   0x0001dfac       0x12 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-memcpy.o)
-                0x0001dfac                memcpy
- *fill*         0x0001dfbe        0x2 
- .text.sprintf  0x0001dfc0       0x44 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-sprintf.o)
-                0x0001dfc0                sprintf
-                0x0001dfc0                siprintf
- .text.strlen   0x0001e004        0xe /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-strlen.o)
-                0x0001e004                strlen
- *fill*         0x0001e012        0x2 
+                0x0001ddc0       0x1c _build/softdevice_handler.o
+                0x0001ddc0                softdevice_enable
+ .text          0x0001dddc       0x4c _build/gcc_startup_nrf51.o
+                0x0001dddc                Reset_Handler
+                0x0001de1c                NMI_Handler
+                0x0001de1e                HardFault_Handler
+                0x0001de20                SVC_Handler
+                0x0001de22                PendSV_Handler
+                0x0001de24                SysTick_Handler
+                0x0001de26                TIMER2_IRQHandler
+                0x0001de26                RTC0_IRQHandler
+                0x0001de26                POWER_CLOCK_IRQHandler
+                0x0001de26                RADIO_IRQHandler
+                0x0001de26                LPCOMP_IRQHandler
+                0x0001de26                SWI4_IRQHandler
+                0x0001de26                TEMP_IRQHandler
+                0x0001de26                QDEC_IRQHandler
+                0x0001de26                SWI5_IRQHandler
+                0x0001de26                TIMER1_IRQHandler
+                0x0001de26                ECB_IRQHandler
+                0x0001de26                Default_Handler
+                0x0001de26                ADC_IRQHandler
+                0x0001de26                SWI3_IRQHandler
+                0x0001de26                CCM_AAR_IRQHandler
+                0x0001de26                WDT_IRQHandler
+                0x0001de26                RNG_IRQHandler
+                0x0001de26                SPI1_TWI1_IRQHandler
+                0x0001de26                SWI1_IRQHandler
+ .text          0x0001de28      0x120 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/libgcc.a(_udivsi3.o)
+                0x0001de28                __udivsi3
+                0x0001de28                __aeabi_uidiv
+                0x0001df34                __aeabi_uidivmod
+ .text          0x0001df48        0x4 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/libgcc.a(_dvmd_tls.o)
+                0x0001df48                __aeabi_ldiv0
+                0x0001df48                __aeabi_idiv0
+ .text.memcpy   0x0001df4c       0x12 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-memcpy.o)
+                0x0001df4c                memcpy
+ *fill*         0x0001df5e        0x2 
+ .text.sprintf  0x0001df60       0x44 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-sprintf.o)
+                0x0001df60                sprintf
+                0x0001df60                siprintf
+ .text.strlen   0x0001dfa4        0xe /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-strlen.o)
+                0x0001dfa4                strlen
+ *fill*         0x0001dfb2        0x2 
  .text.__ssputs_r
-                0x0001e014       0xc0 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-svfprintf.o)
-                0x0001e014                __ssputs_r
+                0x0001dfb4       0xc0 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-svfprintf.o)
+                0x0001dfb4                __ssputs_r
  .text._svfprintf_r
-                0x0001e0d4      0x1ec /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-svfprintf.o)
-                0x0001e0d4                _svfprintf_r
-                0x0001e0d4                _svfiprintf_r
+                0x0001e074      0x1ec /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-svfprintf.o)
+                0x0001e074                _svfprintf_r
+                0x0001e074                _svfiprintf_r
  .text._printf_common
-                0x0001e2c0       0xdc /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-vfprintf_i.o)
-                0x0001e2c0                _printf_common
+                0x0001e260       0xdc /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-vfprintf_i.o)
+                0x0001e260                _printf_common
  .text._printf_i
-                0x0001e39c      0x230 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-vfprintf_i.o)
-                0x0001e39c                _printf_i
- .text.memchr   0x0001e5cc       0x16 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-memchr.o)
-                0x0001e5cc                memchr
- .text.memmove  0x0001e5e2       0x28 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-memmove.o)
-                0x0001e5e2                memmove
- *fill*         0x0001e60a        0x2 
- .text._free_r  0x0001e60c       0x8c /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-freer.o)
-                0x0001e60c                _free_r
+                0x0001e33c      0x230 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-vfprintf_i.o)
+                0x0001e33c                _printf_i
+ .text.memchr   0x0001e56c       0x16 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-memchr.o)
+                0x0001e56c                memchr
+ .text.memmove  0x0001e582       0x28 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-memmove.o)
+                0x0001e582                memmove
+ *fill*         0x0001e5aa        0x2 
+ .text._free_r  0x0001e5ac       0x8c /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-freer.o)
+                0x0001e5ac                _free_r
  .text._malloc_r
-                0x0001e698       0xb0 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-mallocr.o)
-                0x0001e698                _malloc_r
+                0x0001e638       0xb0 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-mallocr.o)
+                0x0001e638                _malloc_r
  .text._realloc_r
-                0x0001e748       0x4c /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-reallocr.o)
-                0x0001e748                _realloc_r
- .text._sbrk_r  0x0001e794       0x24 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-sbrkr.o)
-                0x0001e794                _sbrk_r
+                0x0001e6e8       0x4c /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-reallocr.o)
+                0x0001e6e8                _realloc_r
+ .text._sbrk_r  0x0001e734       0x24 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-sbrkr.o)
+                0x0001e734                _sbrk_r
  .text._malloc_usable_size_r
-                0x0001e7b8       0x16 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-msizer.o)
-                0x0001e7b8                _malloc_usable_size_r
- *fill*         0x0001e7ce        0x2 
- .text._sbrk    0x0001e7d0       0x1c /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libnosys.a(sbrk.o)
-                0x0001e7d0                _sbrk
+                0x0001e758       0x16 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-msizer.o)
+                0x0001e758                _malloc_usable_size_r
+ *fill*         0x0001e76e        0x2 
+ .text._sbrk    0x0001e770       0x1c /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libnosys.a(sbrk.o)
+                0x0001e770                _sbrk
  *(.init)
- .init          0x0001e7ec        0x4 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crti.o
-                0x0001e7ec                _init
- .init          0x0001e7f0        0x8 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtn.o
+ .init          0x0001e78c        0x4 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crti.o
+                0x0001e78c                _init
+ .init          0x0001e790        0x8 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtn.o
  *(.fini)
- .fini          0x0001e7f8        0x4 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crti.o
-                0x0001e7f8                _fini
- .fini          0x0001e7fc        0x8 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtn.o
+ .fini          0x0001e798        0x4 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crti.o
+                0x0001e798                _fini
+ .fini          0x0001e79c        0x8 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtn.o
  *crtbegin.o(.ctors)
  *crtbegin?.o(.ctors)
  *(EXCLUDE_FILE(*crtend.o *crtend?.o) .ctors)
@@ -1008,109 +1008,110 @@ END GROUP
  *(.dtors)
  *(.rodata*)
  .rodata.str1.1
-                0x0001e804        0x2 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-impure.o)
- *fill*         0x0001e806        0x2 
+                0x0001e7a4        0x2 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-impure.o)
+ *fill*         0x0001e7a6        0x2 
  .rodata._global_impure_ptr
-                0x0001e808        0x4 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-impure.o)
-                0x0001e808                _global_impure_ptr
- .rodata        0x0001e80c        0xc _build/uart.o
+                0x0001e7a8        0x4 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-impure.o)
+                0x0001e7a8                _global_impure_ptr
+ .rodata        0x0001e7ac        0xc _build/uart.o
  .rodata.str1.4
-                0x0001e818        0x7 _build/uart.o
- *fill*         0x0001e81f        0x1 
- .rodata        0x0001e820       0x10 _build/mpu6050.o
- .rodata.transaction.7206
-                0x0001e830       0x10 _build/mpu6050.o
- .rodata.transfers.7205
-                0x0001e840       0x10 _build/mpu6050.o
+                0x0001e7b8        0x7 _build/uart.o
+ *fill*         0x0001e7bf        0x1 
+ .rodata        0x0001e7c0       0x10 _build/mpu6050.o
+ .rodata.transfers.7204
+                0x0001e7d0       0x10 _build/mpu6050.o
  .rodata.transf_power_mng2_data
-                0x0001e850        0x2 _build/mpu6050.o
- *fill*         0x0001e852        0x2 
+                0x0001e7e0        0x2 _build/mpu6050.o
+ *fill*         0x0001e7e2        0x2 
  .rodata.transf_signal_path_reset_data
-                0x0001e854        0x2 _build/mpu6050.o
- *fill*         0x0001e856        0x2 
+                0x0001e7e4        0x2 _build/mpu6050.o
+ *fill*         0x0001e7e6        0x2 
  .rodata.transf_gyro_config_data
-                0x0001e858        0x2 _build/mpu6050.o
- *fill*         0x0001e85a        0x2 
+                0x0001e7e8        0x2 _build/mpu6050.o
+ *fill*         0x0001e7ea        0x2 
  .rodata.mpu6050_whoami_transfers
-                0x0001e85c       0x10 _build/mpu6050.o
+                0x0001e7ec       0x10 _build/mpu6050.o
  .rodata.who_am_i_reg_addr
-                0x0001e86c        0x1 _build/mpu6050.o
- *fill*         0x0001e86d        0x3 
+                0x0001e7fc        0x1 _build/mpu6050.o
+ *fill*         0x0001e7fd        0x3 
  .rodata.transf_power_mng1_data
-                0x0001e870        0x2 _build/mpu6050.o
- *fill*         0x0001e872        0x2 
+                0x0001e800        0x2 _build/mpu6050.o
+ *fill*         0x0001e802        0x2 
  .rodata.transf_config_data
-                0x0001e874        0x2 _build/mpu6050.o
- *fill*         0x0001e876        0x2 
- .rodata.str1.4
-                0x0001e878       0x79 _build/mpu6050.o
+                0x0001e804        0x2 _build/mpu6050.o
  .rodata.xout_high_reg_addr
-                0x0001e8f1        0x1 _build/mpu6050.o
- *fill*         0x0001e8f2        0x2 
+                0x0001e806        0x1 _build/mpu6050.o
+ *fill*         0x0001e807        0x1 
+ .rodata.transaction.7205
+                0x0001e808       0x10 _build/mpu6050.o
+ .rodata.str1.4
+                0x0001e818       0x6d _build/mpu6050.o
+ *fill*         0x0001e885        0x3 
  .rodata.transf_acc_config_data
-                0x0001e8f4        0x2 _build/mpu6050.o
- *fill*         0x0001e8f6        0x2 
+                0x0001e888        0x2 _build/mpu6050.o
+ *fill*         0x0001e88a        0x2 
  .rodata.mpu6050_init_transfers
-                0x0001e8f8       0x30 _build/mpu6050.o
- .rodata        0x0001e928        0x4 _build/ble_manager.o
+                0x0001e88c       0x30 _build/mpu6050.o
+ .rodata        0x0001e8bc        0x4 _build/ble_manager.o
  .rodata.adv_data_packet
-                0x0001e92c       0x13 _build/ble_manager.o
- *fill*         0x0001e93f        0x1 
+                0x0001e8c0       0x13 _build/ble_manager.o
+ *fill*         0x0001e8d3        0x1 
  .rodata.str1.4
-                0x0001e940       0x1f _build/ble_manager.o
- *fill*         0x0001e95f        0x1 
+                0x0001e8d4       0x1f _build/ble_manager.o
+ *fill*         0x0001e8f3        0x1 
+ .rodata.motion_states_strings
+                0x0001e8f4       0x30 _build/application.o
  .rodata.ble_update_trigger
-                0x0001e960        0x4 _build/application.o
+                0x0001e924        0x4 _build/application.o
  .rodata.adv_values
-                0x0001e964        0x4 _build/application.o
+                0x0001e928        0xc _build/application.o
  .rodata.str1.4
-                0x0001e968       0x60 _build/application.o
-                                 0x5f (size before relaxing)
+                0x0001e934       0x78 _build/application.o
  .rodata.read_trigger
-                0x0001e9c8        0x4 _build/application.o
- .rodata        0x0001e9cc       0x20 _build/app_uart_fifo.o
+                0x0001e9ac        0x4 _build/application.o
+ .rodata        0x0001e9b0       0x20 _build/app_uart_fifo.o
  .rodata.m_default_config
-                0x0001e9ec       0x10 _build/nrf_drv_twi.o
+                0x0001e9d0       0x10 _build/nrf_drv_twi.o
  .rodata.m_default_config
-                0x0001e9fc       0x20 _build/nrf_drv_uart.o
+                0x0001e9e0       0x20 _build/nrf_drv_uart.o
  .rodata.str1.1
-                0x0001ea1c       0x11 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-svfprintf.o)
+                0x0001ea00       0x11 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-svfprintf.o)
  .rodata.str1.1
-                0x0001ea2d       0x22 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-vfprintf_i.o)
+                0x0001ea11       0x22 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/libc_nano.a(lib_a-nano-vfprintf_i.o)
  *(.eh_frame*)
- *fill*         0x0001ea4f        0x1 
- .eh_frame      0x0001ea50        0x0 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtbegin.o
- .eh_frame      0x0001ea50        0x4 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtend.o
+ *fill*         0x0001ea33        0x1 
+ .eh_frame      0x0001ea34        0x0 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtbegin.o
+ .eh_frame      0x0001ea34        0x4 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtend.o
 
-.glue_7         0x0001ea54        0x0
+.glue_7         0x0001ea38        0x0
  .glue_7        0x00000000        0x0 linker stubs
 
-.glue_7t        0x0001ea54        0x0
+.glue_7t        0x0001ea38        0x0
  .glue_7t       0x00000000        0x0 linker stubs
 
-.vfp11_veneer   0x0001ea54        0x0
+.vfp11_veneer   0x0001ea38        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x0001ea54        0x0
+.v4_bx          0x0001ea38        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
-.iplt           0x0001ea54        0x0
+.iplt           0x0001ea38        0x0
  .iplt          0x00000000        0x0 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtbegin.o
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x0001ea54                __exidx_start = .
+                0x0001ea38                __exidx_start = .
 
-.ARM.exidx      0x0001ea54        0x8
+.ARM.exidx      0x0001ea38        0x8
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
- .ARM.exidx     0x0001ea54        0x8 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
-                0x0001ea5c                __exidx_end = .
-                0x0001ea5c                __etext = .
+ .ARM.exidx     0x0001ea38        0x8 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+                0x0001ea40                __exidx_end = .
+                0x0001ea40                __etext = .
 
-.rel.dyn        0x0001ea5c        0x0
+.rel.dyn        0x0001ea40        0x0
  .rel.iplt      0x00000000        0x0 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtbegin.o
 
-.data           0x20002800       0x94 load address 0x0001ea5c
+.data           0x20002800       0x94 load address 0x0001ea40
                 0x20002800                __data_start__ = .
  *(vtable)
  *(.data*)
@@ -1147,10 +1148,10 @@ END GROUP
                 0x20002894                . = ALIGN (0x4)
                 0x20002894                __data_end__ = .
 
-.igot.plt       0x20002894        0x0 load address 0x0001eaf0
+.igot.plt       0x20002894        0x0 load address 0x0001ead4
  .igot.plt      0x00000000        0x0 /home/marco/ARMToolchain/gcc-arm-none-eabi-4_9-2015q2/bin/../lib/gcc/arm-none-eabi/4.9.3/armv6-m/crtbegin.o
 
-.bss            0x20002894      0x528 load address 0x0001eaf0
+.bss            0x20002894      0x528 load address 0x0001ead4
                 0x20002894                . = ALIGN (0x4)
                 0x20002894                __bss_start__ = .
  *(.bss*)
@@ -1167,11 +1168,11 @@ END GROUP
  *fill*         0x20002b8a        0x2 
  .bss.m_buffer  0x20002b8c        0xe _build/mpu6050.o
  *fill*         0x20002b9a        0x2 
- .bss.queue_buffer.7199
+ .bss.queue_buffer.7198
                 0x20002b9c       0x24 _build/mpu6050.o
  .bss.app_burst_read_handler
                 0x20002bc0        0x4 _build/mpu6050.o
- .bss.BLE_EVT_BUFFER.8526
+ .bss.BLE_EVT_BUFFER.8528
                 0x20002bc4       0x48 _build/ble_manager.o
  .bss.m_adv_params
                 0x20002c0c       0x18 _build/ble_manager.o
