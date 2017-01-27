@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) [2016] [Marco Russi]
+ * Copyright (c) [2015] [Marco Russi]
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,42 @@
 */
 
 
+/* ------------- Inclusions --------------- */
+
+#include <stdint.h>
+#include <stdbool.h>
 
 
-/* --------------- Exported functions prototypes ----------------- */
 
-extern void app_special_op	(uint8_t);
-extern void app_init			(void);
-extern void app_run			(void);
+
+/* ------------- Exported defines --------------- */
+
+/* Mmeory data length */
+/* ATTENTION: this value must be equal of or greater than BLE_CUBE_CFG_STORED_CHARS_LENGTH */
+#define MEM_BUFFER_DATA_LENGTH				6
+
+
+
+
+/* ------------- Exported variables --------------- */
+
+/* Store characteristic values */
+extern uint8_t char_values[MEM_BUFFER_DATA_LENGTH];
+
+
+
+
+/* ------------- Exported functions --------------- */
+
+extern bool memory_is_busy			(void);
+extern bool memory_update_field	(uint8_t, uint8_t *, uint8_t);
+extern bool memory_init				(const uint8_t *);
 
 
 
 
 /* End of file */
+
+
 
 

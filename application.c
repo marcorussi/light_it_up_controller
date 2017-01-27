@@ -38,6 +38,7 @@
 #include "app_timer.h"
 #include "app_trace.h"
 #include "app_util_platform.h"
+#include "bootloader.h"
 
 #include "config.h"
 #ifdef UART_DEBUG
@@ -47,12 +48,17 @@
 #include "mpu6050.h"
 #endif
 #include "ble_manager.h"
+#include "cfg_service.h"
+#include "memory.h"
 #include "application.h"
 
 
 
 
 /* ------------------- Local defines ------------------- */
+
+/* Password for starting DFU Upgrade on char write */
+#define DFU_UPGRADE_CHAR_PASSWORD				0xA9		
 
 #ifdef ENABLE_ACCELEROMETER
 /* Number of acceleration axis */
@@ -157,13 +163,16 @@ typedef enum
 
 /* ------------------- Local macros ------------------- */
 
+/* Macro to set spacial value on GPREGRET register to start bootloader after reset */
+#define SET_REG_VALUE_TO_START_BOOTLOADER() 		(NRF_POWER->GPREGRET = BOOTLOADER_DFU_START)
+
 /* "motion_codified" register configuration */
 /* meaning:  n/a n/a n/a n/a - Zn90dps Z90dps Zn1g Z1g - Yn90dps Y90dps Yn1g Y1g - Xn90dps X90dps Xn1g X1g
    bit pos:   15  14  13  12 -   11      10     9    8      7       6     5    4      3       2     1    0 */
 
 /* Macros to set, clear and check motion flags */
-#define SET_MOTION_FLAG(a, f)						(motion_codified |= (f<<(4*a)))
-#define CLEAR_MOTION_FLAG(a, f)					(motion_codified &= (~(f<<(4*a))))
+#define SET_MOTION_FLAG(a, f)							(motion_codified |= (f<<(4*a)))
+#define CLEAR_MOTION_FLAG(a, f)						(motion_codified &= (~(f<<(4*a))))
 
 #ifdef ENABLE_ACCELEROMETER
 /* Define timer for MPU6050 burst read trigger */
@@ -177,6 +186,19 @@ APP_TIMER_DEF(ble_update_trigger);
 
 
 /* ------------------- Local const variables ------------------- */
+
+/* Default characteristic values */
+const uint8_t default_values[BLE_CUBE_CFG_STORED_CHARS_LENGTH] = 
+{
+	0xAA,			/* Byte 1 */
+	0xBB,			/* Byte 2 */	
+	0x1C,			/* Short 1 - lower byte */
+	0x1D,			/* Short 1 - higher byte */
+	0x2C,			/* Short 2 - lower byte */
+	0x2D,			/* Short 2 - higher byte */
+};
+
+
 #ifdef ENABLE_ACCELEROMETER
 /* Default characteristic values for each motion state */
 static const uint8_t adv_values[NUM_OF_MOTION_STATES] = 
@@ -194,6 +216,7 @@ static const uint8_t adv_values[NUM_OF_MOTION_STATES] =
 	0x1A,
 	0x1B						
 };
+
 
 /* Default strings for each motion state */
 static const char *motion_states_strings[NUM_OF_MOTION_STATES] = 
@@ -461,6 +484,25 @@ static void timer_config(void)
 
 /* --------------- Exported functions ----------------- */
 
+/* Manage SPECIAL_OP characteristic received value */
+void app_special_op( uint8_t special_op_byte )
+{
+	/* if received data is the password for DFU Upgrade */
+	if(special_op_byte == DFU_UPGRADE_CHAR_PASSWORD)
+	{
+		/* set special register value to start bootloader */
+		SET_REG_VALUE_TO_START_BOOTLOADER();
+
+		/* perform a system reset */
+		NVIC_SystemReset();
+	}
+	else
+	{
+		/* do nothing */
+	}
+}
+
+
 /* Function to init the application */
 void app_init( void )
 {
@@ -470,6 +512,12 @@ void app_init( void )
 
 	/* init BLE manager */
 	ble_man_init();
+
+	/* eventually wait for memory to be free */
+	while(false != memory_is_busy());
+	/* try to init the memory indefinitely */
+	/* TODO: implement a timeout and then reset. Maybe use the WDT */
+	while(true != memory_init(default_values));
 
 #ifdef ENABLE_ACCELEROMETER
 	/* set burst read callback function */
@@ -489,8 +537,8 @@ void app_init( void )
 
 #ifdef FACE_INDEX_TEST
 #ifdef UART_DEBUG
-		uint8_t uart_string[] = "FAKE TEST";
-		uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+	uint8_t uart_string[] = "FAKE TEST";
+	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 #endif
 	/* start advertising */

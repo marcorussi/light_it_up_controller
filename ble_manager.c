@@ -39,15 +39,19 @@
 #include "ble_hci.h"
 #include "ble_srv_common.h"
 #include "ble_advdata.h"
+#include "ble_dis.h"
+#include "ble_bas.h"
 #include "app_error.h"
 #include "softdevice_handler.h"
 #include "ble_conn_params.h"
 #include "app_timer.h"
 #include "app_trace.h"
 #include "app_util_platform.h"
+#include "dfu_init.h"
 #ifdef UART_DEBUG
 #include "uart.h"
 #endif
+#include "cfg_service.h"
 #include "ble_manager.h"
 
 
@@ -87,11 +91,29 @@
 /* Value of the RTC1 PRESCALER register */
 #define APP_TIMER_PRESCALER              	0    
 
+/* Minimum acceptable connection interval (0.1 seconds) */
+#define MIN_CONN_INTERVAL                	MSEC_TO_UNITS(100, UNIT_1_25_MS)           
+
+/* Maximum acceptable connection interval (0.2 second) */
+#define MAX_CONN_INTERVAL                	MSEC_TO_UNITS(200, UNIT_1_25_MS)           
+
+/* Slave latency */
+#define SLAVE_LATENCY                    	0                                          
+
+/* Connection supervisory timeout (4 seconds) */
+#define CONN_SUP_TIMEOUT                 	MSEC_TO_UNITS(4000, UNIT_10_MS)    
+
+/* Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds) */
+#define FIRST_CONN_PARAMS_UPDATE_DELAY   	APP_TIMER_TICKS(5000, APP_TIMER_PRESCALER) 
+
+/* Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds) */
+#define NEXT_CONN_PARAMS_UPDATE_DELAY    	APP_TIMER_TICKS(30000, APP_TIMER_PRESCALER)
+
+/* Number of attempts before giving up the connection parameter negotiation */
+#define MAX_CONN_PARAMS_UPDATE_COUNT     	3    
+
 /* Number of data byte in advertising packet */
 #define NUM_OF_DATA_BYTES						8
-
-/* Initial face index value */
-#define INITIAL_STATE							1
 
 /* Max adv length */
 #define MAX_ADV_LENGTH							31
@@ -169,7 +191,7 @@ static const uint8_t adv_data_packet[ADV_DATA_PACKET_LENGTH] =
 	MANUF_DATA_LENGTH,						/* manufacturer data length */
 	(uint8_t)MANUF_SERVICE_ID,				/* service ID lower byte */
 	(uint8_t)(MANUF_SERVICE_ID >> 8),	/* service ID higher byte */
-	INITIAL_STATE,								/* Data 0 */
+	0x00,											/* Data 0 */
 	0x00,											/* Data 1 */
 	0x00,											/* Data 2 */
 	0x00,											/* Data 3 */
@@ -185,8 +207,26 @@ static const uint8_t adv_data_packet[ADV_DATA_PACKET_LENGTH] =
 
 /* ------------------- Local variables ------------------- */ 
 
+/* Structure used to identify the Battery Service */
+static ble_bas_t m_bas; 
+
 /* Parameters to be passed to the stack when starting advertising */
-static ble_gap_adv_params_t m_adv_params;                                                                             
+static ble_gap_adv_params_t m_adv_params;           
+
+/* Structure to identify the CUBE_CFG Service */
+static ble_cube_cfg_st m_cube_cfg;                                                                             
+
+/* Handle of the current connection. */
+static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;       
+
+/* BLE UUID fields */
+/* ATTENTION: custom CUBE_CFG UUID only NOT USED AT THE MOMENT */
+/*
+static ble_uuid_t adv_uuids[] =
+{
+    {BLE_UUID_CUBE_CFG_SERVICE, CUBE_CFG_SERVICE_UUID_TYPE},
+};
+*/                                                          
 
 /* Array containing advertisement packet data */
 uint8_t adv_data[ADV_DATA_PACKET_LENGTH];
@@ -202,8 +242,13 @@ static uint8_t device_name[] = DEVICE_NAME;
 
 /* ------------------- Local functions prototypes ------------------- */
 
+static void cube_cfg_data_handler		(ble_cube_cfg_st *);
 static void on_ble_evt					(ble_evt_t *);
 static void ble_evt_dispatch			(ble_evt_t *);
+static void services_init				(void);
+static void on_conn_params_evt			(ble_conn_params_evt_t *);
+static void conn_params_error_handler	(uint32_t);
+static void conn_params_init			(void);
 static void gap_params_init			(void);
 static void advertising_init			(void);        
 static void ble_stack_init				(void);
@@ -216,11 +261,21 @@ static void timer_handler				(void *);
 
 /* ------------------- Local functions ------------------- */
 
+/* dimmer data handler function */
+static void cube_cfg_data_handler(ble_cube_cfg_st * p_cube_cfg)
+{
+	UNUSED_PARAMETER(p_cube_cfg);
+
+	/* ATTENTION: data not used at the moment */
+	/* TODO... */
+}
+
 /* Function for handling the Application's BLE Stack events.
    Parameters:
    - p_ble_evt: Bluetooth stack event. */
 static void on_ble_evt(ble_evt_t * p_ble_evt)
 {
+	uint32_t err_code;
 	const ble_gap_evt_t * p_gap_evt = &p_ble_evt->evt.gap_evt;	
 
 	switch (p_ble_evt->header.evt_id)
@@ -231,7 +286,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
          if (p_gap_evt->params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING)
          {
 				/* ATTENTION: use this timeout for going to sleep. TODO */
-				uint32_t err_code = sd_ble_gap_adv_start(&m_adv_params);
+				err_code = sd_ble_gap_adv_start(&m_adv_params);
 				APP_ERROR_CHECK(err_code);
 			}
 			else
@@ -240,15 +295,48 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 			}
 		}
 		case BLE_GAP_EVT_CONNECTED:
+		{
+			/* store connection handle */
+            m_conn_handle = p_gap_evt->conn_handle;
+            break;
+		}
 		case BLE_GAP_EVT_DISCONNECTED:
+		{
+			/* reset connection handle */
+            m_conn_handle = BLE_CONN_HANDLE_INVALID;
+
+			/* start advertising again */
+			err_code = sd_ble_gap_adv_start(&m_adv_params);
+    		APP_ERROR_CHECK(err_code);
+            break;
+		}
 		case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
+		{
+            /* Pairing not supported */
+            err_code = sd_ble_gap_sec_params_reply(m_conn_handle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL, NULL);
+            APP_ERROR_CHECK(err_code);
+            break;
+		}
 		case BLE_GATTS_EVT_SYS_ATTR_MISSING:
+		{
+            /* No system attributes have been stored */
+            err_code = sd_ble_gatts_sys_attr_set(m_conn_handle, NULL, 0, 0);
+            APP_ERROR_CHECK(err_code);
+            break;
+		}
 		case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST:
+		{
+            /* it should not pass here */
+            break;
+		}
 		case BLE_GATTC_EVT_TIMEOUT:
 		case BLE_GATTS_EVT_TIMEOUT:
 		{
-      	/* Never here! */
-      	break;
+            /* Disconnect on GATT Server and Client timeout events. */
+            err_code = sd_ble_gap_disconnect(m_conn_handle,
+                                             BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+            APP_ERROR_CHECK(err_code);
+            break;
 		}
 		default:
 		{
@@ -266,7 +354,125 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
    - p_ble_evt:  Bluetooth stack event. */
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
+	ble_conn_params_on_ble_evt(p_ble_evt);
+	ble_cube_cfg_on_ble_evt(&m_cube_cfg, p_ble_evt);  
 	on_ble_evt(p_ble_evt);
+}
+
+
+/* Function for initializing services that will be used by the application */
+static void services_init(void)
+{
+	uint32_t err_code;
+	ble_bas_init_t    bas_init_obj;
+	ble_dis_init_t    dis_init_obj;
+	ble_cube_cfg_init_st cube_cfg_init;
+
+
+	/* init Battery Service */
+	memset(&bas_init_obj, 0, sizeof(bas_init_obj));
+	/* Here the sec level for the Battery Service can be changed/increased. */
+	BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init_obj.battery_level_char_attr_md.cccd_write_perm);
+	BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init_obj.battery_level_char_attr_md.read_perm);
+	BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&bas_init_obj.battery_level_char_attr_md.write_perm);
+	BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init_obj.battery_level_report_read_perm);
+	bas_init_obj.evt_handler          = NULL;
+	bas_init_obj.support_notification = true;
+	bas_init_obj.p_report_ref         = NULL;
+	/* the battery level will be updated later on application init */
+	bas_init_obj.initial_batt_level   = 0;	
+	/* init Battery service */
+	err_code = ble_bas_init(&m_bas, &bas_init_obj);
+	APP_ERROR_CHECK(err_code);
+
+
+	/* init Device Information Service */
+	memset(&dis_init_obj, 0, sizeof(dis_init_obj));
+	/* set device information fields */
+	serial_num_string serial_num_ascii;
+	ble_srv_ascii_to_utf8(&dis_init_obj.hw_rev_str, HW_REVISION);
+	ble_srv_ascii_to_utf8(&dis_init_obj.fw_rev_str, FW_REVISION);
+	ble_srv_ascii_to_utf8(&dis_init_obj.manufact_name_str, MANUFACTURER_NAME);
+	/* set serial number from the UICR */
+	sprintf(serial_num_ascii, "%d", (unsigned int)UICR_DEVICE_SERIAL_NUM);
+	ble_srv_ascii_to_utf8(&dis_init_obj.serial_num_str, serial_num_ascii);
+/*
+	ble_srv_utf8_str_t 	manufact_name_str
+	ble_srv_utf8_str_t 	model_num_str
+	ble_srv_utf8_str_t 	serial_num_str
+	ble_srv_utf8_str_t 	hw_rev_str
+	ble_srv_utf8_str_t 	fw_rev_str
+	ble_srv_utf8_str_t 	sw_rev_str
+	ble_dis_sys_id_t * 	p_sys_id
+	ble_dis_reg_cert_data_list_t * 	p_reg_cert_data_list
+	ble_dis_pnp_id_t * 	p_pnp_id
+	ble_srv_security_mode_t 	dis_attr_md
+*/
+	BLE_GAP_CONN_SEC_MODE_SET_OPEN(&dis_init_obj.dis_attr_md.read_perm);
+	BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&dis_init_obj.dis_attr_md.write_perm);
+	/* init Device Info service */
+	err_code = ble_dis_init(&dis_init_obj);
+	APP_ERROR_CHECK(err_code);
+
+
+	/* init CUBE_CFG service */
+	memset(&cube_cfg_init, 0, sizeof(cube_cfg_init));
+	/* set CUBE_CFG data handler */
+	cube_cfg_init.data_handler = cube_cfg_data_handler;
+	/* init CUBE_CFG service */
+	err_code = ble_cube_cfg_init(&m_cube_cfg, &cube_cfg_init);
+	APP_ERROR_CHECK(err_code);
+}
+
+
+/* Function for handling the Connection Parameters Module.
+   This function will be called for all events in the Connection Parameters Module which
+   are passed to the application.
+   All this function does is to disconnect. This could have been done by simply
+   setting the disconnect_on_fail config parameter, but instead we use the event
+   handler mechanism to demonstrate its use.
+   Parameters:
+   - p_evt: Event received from the Connection Parameters Module. */
+static void on_conn_params_evt(ble_conn_params_evt_t * p_evt)
+{
+    uint32_t err_code;
+
+    if (p_evt->evt_type == BLE_CONN_PARAMS_EVT_FAILED)
+    {
+        err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
+        APP_ERROR_CHECK(err_code);
+    }
+}
+
+
+/* Function for handling a Connection Parameters error.
+   Parameters:
+   - nrf_error: Error code containing information about what went wrong. */
+static void conn_params_error_handler(uint32_t nrf_error)
+{
+    APP_ERROR_HANDLER(nrf_error);
+}
+
+
+/* Function for initializing the Connection Parameters module. */
+static void conn_params_init(void)
+{
+    uint32_t err_code;
+    ble_conn_params_init_t cp_init;
+
+    memset(&cp_init, 0, sizeof(cp_init));
+
+    cp_init.p_conn_params                  = NULL;
+    cp_init.first_conn_params_update_delay = FIRST_CONN_PARAMS_UPDATE_DELAY;
+    cp_init.next_conn_params_update_delay  = NEXT_CONN_PARAMS_UPDATE_DELAY;
+    cp_init.max_conn_params_update_count   = MAX_CONN_PARAMS_UPDATE_COUNT;
+    cp_init.start_on_notify_cccd_handle    = BLE_GATT_HANDLE_INVALID;
+    cp_init.disconnect_on_fail             = false;
+    cp_init.evt_handler                    = on_conn_params_evt;
+    cp_init.error_handler                  = conn_params_error_handler;
+
+    err_code = ble_conn_params_init(&cp_init);
+    APP_ERROR_CHECK(err_code);
 }
 
 
@@ -276,6 +482,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 static void gap_params_init(void)
 {
 	uint32_t                err_code;
+	ble_gap_conn_params_t   gap_conn_params;
 	ble_gap_conn_sec_mode_t sec_mode;
 
 	BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&sec_mode);
@@ -287,6 +494,16 @@ static void gap_params_init(void)
 
 	/* TODO: Use an appearance value matching the application's use case. */
 	err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_GENERIC_REMOTE_CONTROL);
+	APP_ERROR_CHECK(err_code);
+
+	memset(&gap_conn_params, 0, sizeof(gap_conn_params));
+
+	gap_conn_params.min_conn_interval = MIN_CONN_INTERVAL;
+	gap_conn_params.max_conn_interval = MAX_CONN_INTERVAL;
+	gap_conn_params.slave_latency     = SLAVE_LATENCY;
+	gap_conn_params.conn_sup_timeout  = CONN_SUP_TIMEOUT;
+
+	err_code = sd_ble_gap_ppcp_set(&gap_conn_params);
 	APP_ERROR_CHECK(err_code);
 }
 
@@ -317,7 +534,7 @@ static void advertising_init(void)
 	/* Initialize advertising parameters (used when starting advertising) */
 	memset(&m_adv_params, 0, sizeof(m_adv_params));
 
-	m_adv_params.type        = BLE_GAP_ADV_TYPE_ADV_SCAN_IND;	/* Not connectable */ //BLE_GAP_ADV_TYPE_ADV_IND;
+	m_adv_params.type        = BLE_GAP_ADV_TYPE_ADV_IND; /* BLE_GAP_ADV_TYPE_ADV_SCAN_IND for Not connectable */
 	m_adv_params.p_peer_addr = NULL;	/* Undirected advertisement */
 	m_adv_params.fp          = BLE_GAP_ADV_FP_ANY;
 	m_adv_params.p_whitelist = NULL;
@@ -398,6 +615,24 @@ static void timer_handler(void * p_context)
 
 /* ------------------- Exported functions ------------------- */
 
+/* Function to update the battery level in the battery service */
+void ble_mng_update_batt_level( uint8_t batt_percentage )
+{
+	/* call the battery service API function to update the battery level */
+	uint32_t err_code = ble_bas_battery_level_update(&m_bas, batt_percentage);
+	/* if an error occurred */
+    if (err_code != NRF_SUCCESS) 
+    {
+		/* do nothing at the moment */
+		/* consider to manage this error in the future */
+    }
+	else
+	{
+		/* success: do nothing */
+	}
+}
+
+
 /* Function for updating the adv packet */
 void ble_man_adv_update(uint8_t *data_values, uint8_t length)
 {
@@ -458,6 +693,8 @@ void ble_man_init(void)
 	/* stack BLE stack */
 	ble_stack_init();
 	gap_params_init();
+	services_init();
+	conn_params_init();
 
 #ifdef FACE_INDEX_TEST
 	uint32_t err_code;

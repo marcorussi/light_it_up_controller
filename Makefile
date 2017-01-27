@@ -72,6 +72,8 @@ $(abspath main.c) \
 $(abspath uart.c) \
 $(abspath mpu6050.c) \
 $(abspath ble_manager.c) \
+$(abspath cfg_service.c) \
+$(abspath memory.c) \
 $(abspath application.c) \
 $(abspath $(SDK_COMPONENTS_PATH)/libraries/util/app_error.c) \
 $(abspath $(SDK_COMPONENTS_PATH)/libraries/util/app_error_weak.c) \
@@ -92,6 +94,8 @@ $(abspath $(SDK_COMPONENTS_PATH)/drivers_nrf/twi_master/nrf_drv_twi.c) \
 $(abspath $(SDK_COMPONENTS_PATH)/drivers_nrf/pstorage/pstorage.c) \
 $(abspath $(SDK_COMPONENTS_PATH)/drivers_nrf/uart/nrf_drv_uart.c) \
 $(abspath $(SDK_COMPONENTS_PATH)/ble/common/ble_advdata.c) \
+$(abspath $(SDK_COMPONENTS_PATH)/ble/ble_services/ble_bas/ble_bas.c) \
+$(abspath $(SDK_COMPONENTS_PATH)/ble/ble_services/ble_dis/ble_dis.c) \
 $(abspath $(SDK_COMPONENTS_PATH)/ble/common/ble_conn_params.c) \
 $(abspath $(SDK_COMPONENTS_PATH)/ble/common/ble_srv_common.c) \
 $(abspath $(SDK_COMPONENTS_PATH)/toolchain/system_nrf51.c) \
@@ -108,6 +112,8 @@ INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/toolchain/gcc)
 INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/drivers_nrf/uart)
 INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/drivers_nrf/rtc)
 INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/ble/common)
+INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/ble/ble_services/ble_bas)
+INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/ble/ble_services/ble_dis)
 INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/softdevice/s130/headers)
 INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/softdevice/s130/headers/nrf51)
 INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/drivers_nrf/common)
@@ -134,6 +140,7 @@ INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/libraries/timer)
 INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/libraries/experimental_section_vars)
 INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/drivers_nrf/hal)
 INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/toolchain/CMSIS/Include)
+INC_PATHS += -I$(abspath $(SDK_COMPONENTS_PATH)/libraries/bootloader_dfu)
 
 OBJECT_DIRECTORY = _build
 LISTING_DIRECTORY = $(OBJECT_DIRECTORY)
