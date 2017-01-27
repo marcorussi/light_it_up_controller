@@ -225,6 +225,9 @@ static uint16_t motion_codified = 0;
 static uint8_t last_motion_state_index = MOTION_STATE_INVALID;
 #endif
 
+/* store boolean flag for indicating BLE update timer running */
+static bool update_timer_running = false;
+
 
 
 
@@ -374,7 +377,7 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 
 	/* if motion state has changed */
 	if((motion_state_index != last_motion_state_index)
-	&& (motion_state_index != MOTION_STATE_INVALID))
+	&& (motion_state_index < NUM_OF_MOTION_STATES))
 	{
 		/* store motion state index */
 		last_motion_state_index = motion_state_index;
@@ -384,6 +387,13 @@ void mpu6050_burst_read_callback( int16_t *p_data, uint8_t data_length)
 																				 (const char *)motion_states_strings[motion_state_index]);
 		uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
+
+		/* ATTENTION: using this advertising mechanism, only motions of faces up and down will be advertised! */
+		/* start BLE adv update trigger timer */
+		uint32_t err_code = app_timer_start(ble_update_trigger, BLE_UPDATE_TIMER_TICK_COUNT, NULL);
+		APP_ERROR_CHECK(err_code);
+		/* update timer is running */
+		update_timer_running = true;
 	}
 	else
 	{
@@ -410,7 +420,7 @@ static void update_timeout_handler(void * p_context)
 	nrf_gpio_pin_toggle(7);
 #endif
 	/* if motion state index is valid */
-	if(last_motion_state_index != MOTION_STATE_INVALID)
+	if(last_motion_state_index < NUM_OF_MOTION_STATES)
 	{
 		/* update BLE adv packet with new data values */
 		ble_man_adv_update((uint8_t *)&adv_values[last_motion_state_index], 1);
@@ -419,6 +429,9 @@ static void update_timeout_handler(void * p_context)
 	{
 		/* do nothing */
 	}
+
+	/* update timer is running */
+	update_timer_running = false;
 }
 
 
@@ -432,16 +445,14 @@ static void timer_config(void)
 	APP_ERROR_CHECK(err_code);
 
 	/* init BLE adv update trigger timer */
-	err_code = app_timer_create(&ble_update_trigger, APP_TIMER_MODE_REPEATED, update_timeout_handler);
+	err_code = app_timer_create(&ble_update_trigger, APP_TIMER_MODE_SINGLE_SHOT, update_timeout_handler);
 	APP_ERROR_CHECK(err_code);
 
 	/* start burst read trigger timer */
 	err_code = app_timer_start(read_trigger, BURST_READ_TIMER_TICK_COUNT, NULL);
 	APP_ERROR_CHECK(err_code);
 
-	/* start BLE adv update trigger timer */
-	//err_code = app_timer_start(ble_update_trigger, BLE_UPDATE_TIMER_TICK_COUNT, NULL);
-	//APP_ERROR_CHECK(err_code);
+	/* update trigger timer is started on a new motion detection */
 }
 #endif
 
