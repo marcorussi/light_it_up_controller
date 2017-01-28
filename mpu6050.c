@@ -324,11 +324,6 @@ bool mpu6050_start_burst_read(void)
 bool mpu6050_init( mpu6050_init_st *p_init )
 {
 	bool success = true;
-#ifdef UART_DEBUG
-	uint8_t uart_string[8];
-	/* send initial UART string */
-	uart_send_string((uint8_t *)"MPU6050 INIT", 12);
-#endif
 
 	/* wait enough time for MPU6050 to boot up */
 	nrf_delay_ms(MPU6050_POWER_UP_DELAY_MS);
@@ -352,7 +347,7 @@ bool mpu6050_init( mpu6050_init_st *p_init )
 			APP_ERROR_CHECK(app_twi_perform(&m_app_twi, mpu6050_init_transfers, MPU6050_INIT_TRANSFER_COUNT, NULL));
 
 #ifdef UART_DEBUG
-			sprintf((char *)uart_string, "OK - %x", m_buffer[0]);
+			uint8_t uart_string[] = "MPU6050 INIT DONE";
 			uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
 #endif
 		}
@@ -360,18 +355,12 @@ bool mpu6050_init( mpu6050_init_st *p_init )
 		{
 			/* error: do nothing */
 			success = false;
-#ifdef UART_DEBUG
-			uart_send_string((uint8_t *)"FAIL. INVALID APP FUNCTION HANDLER", 34);
-#endif
 		}
 	}
 	else
 	{
 		/* error: do nothing */
 		success = false;
-#ifdef UART_DEBUG
-		uart_send_string((uint8_t *)"FAIL TO INIT MPU6500", 20);
-#endif
 	}
 
 	return success;
