@@ -24,6 +24,7 @@
 
 /* ------------- Inclusions --------------- */
 
+#include "config.h"
 #include <string.h>
 #include "nordic_common.h"
 #include "nrf.h"
@@ -241,8 +242,7 @@ bool memory_init(const uint8_t *p_def_val)
 	}
 	else
 	{
-		/* return false. Set it again */
-		ps_success = false;
+		/* do nothing */
 	}
 
 	return ps_success;
