@@ -43,10 +43,10 @@ MANUF_DATA_TYPE: manufacturer data type
 MANUF_DATA_LENGTH: manufacturer data length 
 (uint8_t)MANUF_SERVICE_ID: service ID lower byte 
 (uint8_t)(MANUF_SERVICE_ID >> 8): service ID higher byte 
-INITIAL_STATE: Data 0 
+0x00: Data 0 
 0x00: Data 1 
 0x00: Data 2 
-0x15: Data 3 
+0x00: Data 3 
 0x00: Data 4 
 0x00: Data 5 
 0x00: Data 6 
@@ -63,14 +63,51 @@ The CALIB_RSSI field is a calibrated value of RSSI in two's complement. It is no
 Advertised data from a remote controller are 8 byte long.
 The defined service ID is the only supported and related data bytes are managed as below:
 
-DATA_BYTE_0_POS: reserved - leave at 0xFF at the moment
-DATA_BYTE_1_POS: any different value than before means that next byte position has a new value
-DATA_BYTE_2_POS: controller state
+DATA_BYTE_0_POS: Current state
+DATA_BYTE_1_POS: not used 
+DATA_BYTE_2_POS: not used 
 DATA_BYTE_3_POS: not used 
 DATA_BYTE_4_POS: not used 
 DATA_BYTE_5_POS: not used 
 DATA_BYTE_6_POS: not used 
 DATA_BYTE_7_POS: not used 
 
-The new light values are updated when the controller confirms to be stable in a postion prior movement detection (TO BE IMPLEMENTED SINCE IT UPDATES THE CURRENT POSITION PERIODICALLY AT THE MOMENT).
+The new light values are updated when the controller confirms to be stable in a position prior movement detection (TO BE IMPLEMENTED SINCE IT UPDATES THE CURRENT POSITION AFTER A FEW SECONDS AT EVERY NEW DETECTED MOTION STATE).
+
+The data 0 field is updated with a different value for every motion state as followings:
+"X UP"    : 0x10				
+"X DOWN"  : 0x11
+"X ROT R" : 0x12	
+"X ROT L" : 0x13
+"Y UP"    : 0x14			
+"Y DOWN"  : 0x15	
+"Y ROT R" : 0x16	
+"Y ROT L" : 0x17	
+"Z UP"    : 0x18					
+"Z DOWN"  : 0x19	
+"Z ROT R" : 0x1A	
+"Z ROT L" : 0x1B
+
+
+1.2 - Services
+1.2.1 - CFG Service
+BASE UUID: 0x8A, 0xAF, 0xA6, 0xC2, 0x3A, 0x32, 0x8F, 0x84, 0x75, 0x4F, 0xF3, 0x02, 0x01, 0x50, 0x65, 0x20 
+This custom service allows a remote configuration of the device and special operations through the following characteristics:
+
+1) UUID: 0x02 - BYTE 1 which is a 1 byte long characteristic. Generic configuration value not used at the moment;
+2) UUID: 0x04 - BYTE 2 which is a 1 byte long characteristic. Generic configuration value not used at the moment;;
+3) UUID: 0x06 - SHORT 1 which is a 2 bytes long characteristic. Generic configuration value not used at the moment;;
+4) UUID: 0x08 - SHORT 2 which is a 2 bytes long characteristic. Generic configuration value not used at the moment;;
+5) UUID: 0x0A - SPECIAL OP which is a 1 byte long characteristic for special operations. There is only one operation at the moment:
+	value 0xA9 for rebooting the device in bootloader mode;
+
+1.2.2 - Battery Service
+The standard Battery Service as specified by Bluetooth SIG.
+
+1.2.3 - Device Information Service
+The standard Device Information Service as specified by Bluetooth SIG.
+
+
+
+
 
