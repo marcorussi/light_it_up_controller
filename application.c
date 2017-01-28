@@ -217,7 +217,7 @@ static const uint8_t adv_values[NUM_OF_MOTION_STATES] =
 	0x1B						
 };
 
-
+#if UART_DEBUG
 /* Default strings for each motion state */
 static const char *motion_states_strings[NUM_OF_MOTION_STATES] = 
 {
@@ -234,6 +234,7 @@ static const char *motion_states_strings[NUM_OF_MOTION_STATES] =
 	"Z ROT R",	
 	"Z ROT L"					
 };
+#endif
 #endif
 
 
