@@ -1,6 +1,8 @@
 # light_it_up_controller
-BLE motion controller based on nrf51 chipset. It allows to control a compatible BLE LED dimmer by moving it in specific ways.
-Refer to doc.txt for more details.
+A BLE motion controller based on Nordic nrf51 chipset. Developed under Ubuntu environment using a nrf51 PCA10028 development kit and a custom board. The firmware is based on S130 from Nordic SDK 11.x.x.
+
+This firmware detects a motion state and advertises an associated value in a specific data field. A compatible 4 channels LED dimmer scans the advertising packet and controls the 4 channels PWM values. The firmware detects face orientation and rotation using an accelerometer.
+Refer to doc.txt file. 
 
 
 **Install**
