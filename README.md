@@ -27,6 +27,7 @@ GNU_PREFIX := arm-none-eabi
 ```
 Verify also the JLink path in tools/nrfjprog.sh
 
+
 **Flash**
 
 Connect your nrf51 Dev. Kit, make and flash it:
@@ -38,6 +39,7 @@ Connect your nrf51 Dev. Kit, make and flash it:
 You can erase the whole flash memory by running:
 
     $ make erase
+
 
 **DFU Upgrade**
 
