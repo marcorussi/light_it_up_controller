@@ -26,9 +26,8 @@
 
 /* --------------- Exported functions prototypes ----------------- */
 
-extern void ble_man_adv_update			(uint8_t *, uint8_t);
-extern void ble_man_adv_start			(void);
-extern void ble_man_init				(void);
+extern void ble_man_adv_update	(uint8_t *, uint8_t);
+extern void ble_man_init			(void);
 
 
 

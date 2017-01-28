@@ -88,7 +88,7 @@
 typedef struct ble_cube_cfg_s ble_cube_cfg_st;
 
 /* CUBE_CFG Service event handler type */
-typedef void (*ble_cube_cfg_data_handler_st) (ble_cube_cfg_st * p_cube_cfg);
+typedef void (*ble_cube_cfg_data_handler_st) (uint16_t char_uuid, uint8_t *data_ptr, uint16_t data_len);//(ble_cube_cfg_st * p_cube_cfg);
 
 /* CUBE_CFG Service initialization structure.
    This structure contains the initialization information for the service. The application

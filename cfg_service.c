@@ -36,6 +36,7 @@
 
 /* ------------- Inclusions --------------- */
 
+#include "config.h"
 #include <string.h>
 #include "nordic_common.h"
 #include "nrf.h"
@@ -106,7 +107,7 @@ static void on_disconnect(ble_cube_cfg_st * p_cube_cfg, ble_evt_t * p_ble_evt)
 /* Function for handling the BLE_GATTS_EVT_WRITE event from the SoftDevice */
 static void on_write(ble_cube_cfg_st * p_cube_cfg, ble_evt_t * p_ble_evt)
 {
-    ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
+	ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
 	/* if data pointer is valid and length is greater than 0 */
 	if((p_evt_write->data != NULL)
@@ -119,8 +120,8 @@ static void on_write(ble_cube_cfg_st * p_cube_cfg, ble_evt_t * p_ble_evt)
 			/* update field in the persistent memory */
 			memory_update_field(BLE_CUBE_CFG_BYTE1_CHAR_POS, p_evt_write->data, BLE_CUBE_CFG_BYTE1_CHAR_LENGTH);
 
-			/* call previously registered callback function for CMD */
-			p_cube_cfg->data_handler(p_cube_cfg);
+			/* call previously registered callback function */
+			p_cube_cfg->data_handler(BLE_UUID_CUBE_CFG_BYTE1_CHAR, (uint8_t *)p_evt_write->data, (uint16_t)p_evt_write->len);
 		}
 		/* byte 2, length is not checked. Write operation length is truncated to the expected one */
 		else if(p_evt_write->handle == p_cube_cfg->byte2_charac_handles.value_handle)
@@ -129,8 +130,8 @@ static void on_write(ble_cube_cfg_st * p_cube_cfg, ble_evt_t * p_ble_evt)
 			/* update field in the persistent memory */
 			memory_update_field(BLE_CUBE_CFG_BYTE2_CHAR_POS, p_evt_write->data, BLE_CUBE_CFG_BYTE2_CHAR_LENGTH);
 
-			/* call previously registered callback function for CMD */
-			p_cube_cfg->data_handler(p_cube_cfg);
+			/* call previously registered callback function */
+			p_cube_cfg->data_handler(BLE_UUID_CUBE_CFG_BYTE2_CHAR, (uint8_t *)p_evt_write->data, (uint16_t)p_evt_write->len);
 		}
 		/* short 1, length is not checked. Write operation length is truncated to the expected one */
 		else if(p_evt_write->handle == p_cube_cfg->short1_charac_handles.value_handle)
@@ -139,8 +140,8 @@ static void on_write(ble_cube_cfg_st * p_cube_cfg, ble_evt_t * p_ble_evt)
 			/* update field in the persistent memory */
 			memory_update_field(BLE_CUBE_CFG_SHORT1_CHAR_POS, p_evt_write->data, BLE_CUBE_CFG_SHORT1_CHAR_LENGTH);
 
-			/* call previously registered callback function for CMD */
-			p_cube_cfg->data_handler(p_cube_cfg);
+			/* call previously registered callback function */
+			p_cube_cfg->data_handler(BLE_UUID_CUBE_CFG_SHORT1_CHAR, (uint8_t *)p_evt_write->data, (uint16_t)p_evt_write->len);
 		}
 		/* short 2, length is not checked. Write operation length is truncated to the expected one */
 		else if(p_evt_write->handle == p_cube_cfg->short2_charac_handles.value_handle)
@@ -149,8 +150,8 @@ static void on_write(ble_cube_cfg_st * p_cube_cfg, ble_evt_t * p_ble_evt)
 			/* update field in the persistent memory */
 			memory_update_field(BLE_CUBE_CFG_SHORT2_CHAR_POS, p_evt_write->data, BLE_CUBE_CFG_SHORT2_CHAR_LENGTH);
 
-			/* call previously registered callback function for CMD */
-			p_cube_cfg->data_handler(p_cube_cfg);
+			/* call previously registered callback function */
+			p_cube_cfg->data_handler(BLE_UUID_CUBE_CFG_SHORT2_CHAR, (uint8_t *)p_evt_write->data, (uint16_t)p_evt_write->len);
 		}
 		else if(p_evt_write->handle == p_cube_cfg->special_op_charac_handles.value_handle)
 		{

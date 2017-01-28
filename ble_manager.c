@@ -237,23 +237,26 @@ uint8_t scan_resp_data[MAX_ADV_LENGTH];
 /* Parameters to be passed to the stack when starting advertising */
 static uint8_t device_name[] = DEVICE_NAME; 
 
+/* Flag to indicate that advertising is active */
+static bool adv_active = false;
+
 
 
 
 /* ------------------- Local functions prototypes ------------------- */
 
-static void cube_cfg_data_handler		(ble_cube_cfg_st *);
-static void on_ble_evt					(ble_evt_t *);
-static void ble_evt_dispatch			(ble_evt_t *);
-static void services_init				(void);
+static void cube_cfg_data_handler		(uint16_t, uint8_t *, uint16_t);//(ble_cube_cfg_st *);
+static void on_ble_evt						(ble_evt_t *);
+static void ble_evt_dispatch				(ble_evt_t *);
+static void services_init					(void);
 static void on_conn_params_evt			(ble_conn_params_evt_t *);
 static void conn_params_error_handler	(uint32_t);
-static void conn_params_init			(void);
-static void gap_params_init			(void);
-static void advertising_init			(void);        
-static void ble_stack_init				(void);
+static void conn_params_init				(void);
+static void gap_params_init				(void);
+static void advertising_init				(void);        
+static void ble_stack_init					(void);
 #ifdef FACE_INDEX_TEST
-static void timer_handler				(void *);                
+static void timer_handler					(void *);                
 #endif
 
 
@@ -262,9 +265,15 @@ static void timer_handler				(void *);
 /* ------------------- Local functions ------------------- */
 
 /* dimmer data handler function */
-static void cube_cfg_data_handler(ble_cube_cfg_st * p_cube_cfg)
+static void cube_cfg_data_handler(uint16_t char_uuid, uint8_t *data_ptr, uint16_t data_len)//(ble_cube_cfg_st * p_cube_cfg)
 {
-	UNUSED_PARAMETER(p_cube_cfg);
+	//UNUSED_PARAMETER(p_cube_cfg);
+
+#ifdef UART_DEBUG
+	uint8_t uart_string[40];
+	sprintf((char *)uart_string, "_CFG WRITE: %x - %d", char_uuid, data_len);
+	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+#endif
 
 	/* ATTENTION: data not used at the moment */
 	/* TODO... */
@@ -286,8 +295,11 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
          if (p_gap_evt->params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING)
          {
 				/* ATTENTION: use this timeout for going to sleep. TODO */
-				err_code = sd_ble_gap_adv_start(&m_adv_params);
-				APP_ERROR_CHECK(err_code);
+				//err_code = sd_ble_gap_adv_start(&m_adv_params);
+				//APP_ERROR_CHECK(err_code);
+
+				/* advertising is finished */
+				adv_active = false;
 			}
 			else
 			{
@@ -297,46 +309,46 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 		case BLE_GAP_EVT_CONNECTED:
 		{
 			/* store connection handle */
-            m_conn_handle = p_gap_evt->conn_handle;
-            break;
+		   m_conn_handle = p_gap_evt->conn_handle;
+		   break;
 		}
 		case BLE_GAP_EVT_DISCONNECTED:
 		{
 			/* reset connection handle */
-            m_conn_handle = BLE_CONN_HANDLE_INVALID;
+         m_conn_handle = BLE_CONN_HANDLE_INVALID;
 
 			/* start advertising again */
 			err_code = sd_ble_gap_adv_start(&m_adv_params);
     		APP_ERROR_CHECK(err_code);
-            break;
+         break;
 		}
 		case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
 		{
-            /* Pairing not supported */
-            err_code = sd_ble_gap_sec_params_reply(m_conn_handle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL, NULL);
-            APP_ERROR_CHECK(err_code);
-            break;
+         /* Pairing not supported */
+         err_code = sd_ble_gap_sec_params_reply(m_conn_handle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL, NULL);
+         APP_ERROR_CHECK(err_code);
+         break;
 		}
 		case BLE_GATTS_EVT_SYS_ATTR_MISSING:
 		{
-            /* No system attributes have been stored */
-            err_code = sd_ble_gatts_sys_attr_set(m_conn_handle, NULL, 0, 0);
-            APP_ERROR_CHECK(err_code);
-            break;
+         /* No system attributes have been stored */
+         err_code = sd_ble_gatts_sys_attr_set(m_conn_handle, NULL, 0, 0);
+         APP_ERROR_CHECK(err_code);
+         break;
 		}
 		case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST:
 		{
-            /* it should not pass here */
-            break;
+         /* it should not pass here */
+         break;
 		}
 		case BLE_GATTC_EVT_TIMEOUT:
 		case BLE_GATTS_EVT_TIMEOUT:
 		{
-            /* Disconnect on GATT Server and Client timeout events. */
-            err_code = sd_ble_gap_disconnect(m_conn_handle,
-                                             BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            APP_ERROR_CHECK(err_code);
-            break;
+         /* Disconnect on GATT Server and Client timeout events. */
+         err_code = sd_ble_gap_disconnect(m_conn_handle,
+                                          BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+         APP_ERROR_CHECK(err_code);
+         break;
 		}
 		default:
 		{
@@ -638,52 +650,54 @@ void ble_man_adv_update(uint8_t *data_values, uint8_t length)
 {
 	uint32_t err_code;
 
-	/* check data pointer and length */
-	if((length > 0) && (length <= NUM_OF_DATA_BYTES)
-	&& (data_values != NULL))
+	/* if a connection is NOT established */
+	if(BLE_CONN_HANDLE_INVALID == m_conn_handle)
 	{
-		/* stop advertising */
-		err_code = sd_ble_gap_adv_stop();
-		APP_ERROR_CHECK(err_code);
+		/* check data pointer and length */
+		if((length > 0) && (length <= NUM_OF_DATA_BYTES)
+		&& (data_values != NULL))
+		{
+			/* if advertising is active */
+			if(true == adv_active)
+			{
+				/* stop advertising */
+				err_code = sd_ble_gap_adv_stop();
+				APP_ERROR_CHECK(err_code);
 
-		/* set new adv data */
-		memcpy(&adv_data[DATA_BYTE_0_POS], &data_values[0], length);
+				/* advertising is stopped */
+				adv_active = false;
+			}
+			else
+			{
+				/* do nothing */
+			}
+
+			/* set new adv data */
+			memcpy(&adv_data[DATA_BYTE_0_POS], &data_values[0], length);
 		
-		/* set new adv data packet */
-		err_code = sd_ble_gap_adv_data_set((uint8_t const *)adv_data, 
-													  ADV_DATA_PACKET_LENGTH, 
-												     (uint8_t const *)scan_resp_data, 
-													  (scan_resp_data[0] + 1));
-		APP_ERROR_CHECK(err_code);
+			/* set new adv data packet */
+			err_code = sd_ble_gap_adv_data_set((uint8_t const *)adv_data, 
+														  ADV_DATA_PACKET_LENGTH, 
+														  (uint8_t const *)scan_resp_data, 
+														  (scan_resp_data[0] + 1));
+			APP_ERROR_CHECK(err_code);
 
-		/* start advertising again */
-		err_code = sd_ble_gap_adv_start(&m_adv_params);
-		APP_ERROR_CHECK(err_code);
+			/* start advertising again */
+			err_code = sd_ble_gap_adv_start(&m_adv_params);
+			APP_ERROR_CHECK(err_code);
+
+			/* advertising is running */
+			adv_active = true;
+		}
+		else
+		{
+			/* do nothing */
+		}
 	}
 	else
 	{
-		/* do nothing */
+		/* a connection is ongoing: do nothing */
 	}
-}
-
-
-/* Function for starting advertising */
-void ble_man_adv_start(void)
-{
-	uint32_t err_code;
-
-	/* init advertising */
-	advertising_init();
-
-#ifdef UART_DEBUG
-	uint8_t uart_string[20];
-	sprintf((char *)uart_string, "_ADV INITIALISED");
-	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
-#endif
-
-	/* start advertising */
-	err_code = sd_ble_gap_adv_start(&m_adv_params);
-	APP_ERROR_CHECK(err_code);
 }
 
 
@@ -695,6 +709,8 @@ void ble_man_init(void)
 	gap_params_init();
 	services_init();
 	conn_params_init();
+	/* init advertising */
+	advertising_init();
 
 #ifdef FACE_INDEX_TEST
 	uint32_t err_code;

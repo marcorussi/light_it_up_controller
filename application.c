@@ -246,10 +246,10 @@ static uint16_t motion_codified = 0;
 
 /* store last valid motion state index. Init to an invalid greater than 6 value */
 static uint8_t last_motion_state_index = MOTION_STATE_INVALID;
-#endif
 
 /* store boolean flag for indicating BLE update timer running */
 static bool update_timer_running = false;
+#endif
 
 
 
@@ -513,11 +513,21 @@ void app_init( void )
 	/* init BLE manager */
 	ble_man_init();
 
+#ifdef UART_DEBUG
+	uint8_t uart_string[] = "BLE MAN DONE";
+	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+#endif
+
 	/* eventually wait for memory to be free */
 	while(false != memory_is_busy());
 	/* try to init the memory indefinitely */
 	/* TODO: implement a timeout and then reset. Maybe use the WDT */
 	while(true != memory_init(default_values));
+
+#ifdef UART_DEBUG
+	uint8_t uart_string1[] = "MEMORY INIT DONE";
+	uart_send_string((uint8_t *)uart_string1, strlen((const char *)uart_string1));
+#endif
 
 #ifdef ENABLE_ACCELEROMETER
 	/* set burst read callback function */
@@ -537,12 +547,10 @@ void app_init( void )
 
 #ifdef FACE_INDEX_TEST
 #ifdef UART_DEBUG
-	uint8_t uart_string[] = "FAKE TEST";
-	uart_send_string((uint8_t *)uart_string, strlen((const char *)uart_string));
+	uint8_t uart_string2[] = "FAKE TEST";
+	uart_send_string((uint8_t *)uart_string2, strlen((const char *)uart_string2));
 #endif
 #endif
-	/* start advertising */
-	ble_man_adv_start();
 }
 
 
