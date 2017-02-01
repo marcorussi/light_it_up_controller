@@ -49,5 +49,6 @@ For creating a .zip packet for DFU upgrade run the following command:
 
 nrfutil dfu genpkg liu_controller.zip --application ble_controller_s130.hex --application-version 0xffffffff --dev-revision 0xffff --dev-type 0xffff --sd-req 0xfffe
 
+IMPORTANT: nrf-util version must be 0.5.2 or lower.
 
 
